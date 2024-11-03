@@ -1,10 +1,11 @@
+#define NOMINMAX
 #include "graphics.h"
 #include "shader.h"
 #include <vector>
 #include <windows.h>
 
 GLFWwindow* window;
-Shader* shader; 
+Shader* lineShader; 
 unsigned int VAO, VBO;
 int createWindow() { // https://learnopengl.com/Getting-started/Hello-Window
     if (!glfwInit()) {
@@ -34,7 +35,7 @@ int createWindow() { // https://learnopengl.com/Getting-started/Hello-Window
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glViewport(0, 0, width, height);
 
-	shader = new Shader("lineVertex.glsl", "lineFrag.glsl");
+	lineShader = new Shader("lineVertex.glsl", "lineFrag.glsl");
 	setupVAOVBO();
 
     return 0;
@@ -75,12 +76,16 @@ float* hexColour2Float(int hexColour) {
 	return out;
 }
 
-void drawLines(std::vector<float> lv) {
+void drawLines(std::vector<float> lv, unsigned int colour) {
+    lineShader->use();
+    lineShader->setFloat4("colour", hexColour2Float(colour));
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(float)*lv.size(), lv.data(), GL_STATIC_DRAW);
     glBindVertexArray(VAO);
     glDrawArrays(GL_LINES, 0, (GLsizei) lv.size()/2);
 }
+
+
 
 vector<float> Maze::toVertices() {
 	vector<float> vertices;
@@ -120,27 +125,28 @@ vector<float> Maze::toVertices() {
 
 int drawMaze(unsigned int mazeSize, Maze* maze) {
 	int lineWidth = 10;
+    std::chrono::steady_clock::time_point start, end;
+    
     while (!glfwWindowShouldClose(window))
     {
+		start = std::chrono::high_resolution_clock::now();
         glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-		
-		shader->use();
-		shader->setFloat4("ourColour", hexColour2Float(0xFF0A00FF));
-		drawLines(maze->toVertices());
+		drawLines(maze->toVertices(), 0xFF0A00FF);
 		
 		processInput(window);
         glfwSwapBuffers(window);
         glfwPollEvents();
-		Sleep(10);
         if (!maze->doneGenerating)
            maze->generateMaze();
+		end = std::chrono::high_resolution_clock::now();
+        Sleep(static_cast<DWORD>(std::max<long long>(0, 1000 / 60 - std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count()))); // 30fps = 1000/30 = 33.33ms
     }
 
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
-	glDeleteProgram(shader->ID);
+	glDeleteProgram(lineShader->ID);
     glfwTerminate();
 
     return 0;
