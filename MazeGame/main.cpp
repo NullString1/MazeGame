@@ -8,6 +8,7 @@ int main() {
 	const int mazeSize = 16;
 	Character character;
 	Maze maze(mazeSize, mazeSize, &character);
+	character.setMaze(&maze);
 
 	if (createWindow() != 0)
 		return -1;

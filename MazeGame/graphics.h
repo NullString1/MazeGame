@@ -13,6 +13,8 @@ void setupVAOVBO();
 float* hexColour2Float(int hexColour);
 void drawLines(std::vector<float> lv, unsigned int colour);
 GLuint loadDDSTexture(const char* path);
+void close();
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 struct DDS_PIXELFORMAT {
     uint32_t dwSize;

@@ -135,6 +135,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="character.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="graphics.cpp" />
     <ClCompile Include="main.cpp" />

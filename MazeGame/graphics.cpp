@@ -11,6 +11,7 @@ Shader *lineShader, *characterShader;
 int lineWidth = 10;
 unsigned int VAO, VBO, EBO;
 std::chrono::steady_clock::time_point startT, endT;
+Maze* maze;
 
 int createWindow() { // https://learnopengl.com/Getting-started/Hello-Window
     if (!glfwInit()) {
@@ -38,6 +39,7 @@ int createWindow() { // https://learnopengl.com/Getting-started/Hello-Window
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetKeyCallback(window, key_callback);
     glViewport(0, 0, width, height);
 
 	lineShader = new Shader("lineVertex.glsl", "lineFrag.glsl");
@@ -69,10 +71,29 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
 }
-void processInput(GLFWwindow* window)
+void processInput(GLFWwindow* window, Maze* maze)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+}
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+    if (action == GLFW_PRESS) {
+        switch (key)
+        {
+        case GLFW_KEY_W:
+            maze->player->move(maze->player->UP);
+            break;
+        case GLFW_KEY_S:
+            maze->player->move(maze->player->DOWN);
+            break;
+        case GLFW_KEY_A:
+            maze->player->move(maze->player->LEFT);
+            break;
+        case GLFW_KEY_D:
+            maze->player->move(maze->player->RIGHT);
+            break;
+        }
+    }
 }
 
 float* hexColour2Float(int hexColour) {
@@ -160,9 +181,9 @@ GLuint loadDDSTexture(const char* path) {
 	return textureID;
 }
 
-void Character::drawCharacter(unsigned int _x, unsigned int _y) {
-    float x = (float)_x;
-	float y = (float)_y;
+void Character::drawCharacter() {
+	float x = -0.9f + this->getX() * 0.1f + 0.2f;
+	float y = 0.9f - this->getY() * 0.1f;
     float size = 0.1f;
     characterShader->use();
 	characterShader->setInt("texture1", 0);
@@ -208,7 +229,7 @@ vector<float> Maze::toVertices() {
 	vector<float> vertices;
     for (unsigned int i = 0; i < this->height; i++) { // maze->height
         for (unsigned int j = 0; j < this->width; j++) { // maze->width
-            Cell* cell = this->getCell(i, j);
+            Cell* cell = this->getCell(j,i);
             float x = -0.9f + j * 0.1f + 0.1f;
             float y = 0.9f - i * 0.1f;
             float length = 0.1f;
@@ -240,7 +261,10 @@ vector<float> Maze::toVertices() {
     return vertices;
 }
 
-void render(Maze* maze) {    
+void render(Maze* _maze) {
+	maze = _maze;
+	maze->player->setTexture(characterTexture);
+
     while (!glfwWindowShouldClose(window))
     {
 		startT = std::chrono::high_resolution_clock::now();
@@ -248,15 +272,16 @@ void render(Maze* maze) {
         glClear(GL_COLOR_BUFFER_BIT);
 
 		drawLines(maze->toVertices(), 0xFF0A00FF);
-		maze->player->drawCharacter(0.5f, 0.5f);
 		
-		processInput(window);
+		maze->player->drawCharacter();
+
+		processInput(window, maze);
         glfwSwapBuffers(window);
         glfwPollEvents();
         if (!maze->doneGenerating)
            maze->generateMaze();
 		endT = std::chrono::high_resolution_clock::now();
-        Sleep(static_cast<DWORD>(std::max<long long>(0, 1000 / 60 - std::chrono::duration_cast<std::chrono::milliseconds>(endT - startT).count()))); // 60fps = 1000/30 = 33.33ms
+		Sleep(static_cast<DWORD>(std::max<long long>(0, 1000 / 60 - std::chrono::duration_cast<std::chrono::milliseconds>(endT - startT).count()))); // 60fps = 1000/60 = 16.666ms
     }
 	close();
 }

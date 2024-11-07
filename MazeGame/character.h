@@ -1,8 +1,12 @@
 #pragma once
 #include "glad/glad.h"
+#include "maze.h"
+
+class Maze; // forward declaration
+
 class Character {
 public:
-	void drawCharacter(unsigned int _x, unsigned int _y);
+	void drawCharacter();
 	unsigned int getX() {
 		return this->pos[0];
 	}
@@ -25,31 +29,21 @@ public:
 		this->score++;
 	}
 	enum Direction {
-		UP,
-		RIGHT,
-		DOWN,
-		LEFT
+		UP=0,
+		RIGHT=1,
+		DOWN=2,
+		LEFT=3
 	};
-	unsigned int* move(Direction direction) {
-		switch (direction) {
-		case UP:
-			this->pos[1]--;
-			break;
-		case RIGHT:
-			this->pos[0]++;
-			break;
-		case DOWN:
-			this->pos[1]++;
-			break;
-		case LEFT:
-			this->pos[0]--;
-			break;
-		}
-		return this->pos;
+	unsigned int* move(Direction direction);
+	void setTexture(GLuint texture) {
+		this->characterTexture = texture;
+	}
+	void setMaze(Maze* _maze) {
+		this->maze = _maze;
 	}
 private:
-	unsigned int score;
-	unsigned int x, y;
+	unsigned int score = 0;
 	unsigned int pos[2] = { 0, 0 };
+	Maze* maze;
 	GLuint characterTexture;
 };

@@ -21,22 +21,22 @@ void Maze::generateMaze() {
 		Cell* next = unvisited[index];
 		int x = this->current->x - next->x;
 		if (x == 1) {
-			this->current->walls[0] = false;
-			next->walls[2] = false;
+			this->current->walls[3] = false;
+			next->walls[1] = false;
 		}
 		else if (x == -1) {
-			this->current->walls[2] = false;
-			next->walls[0] = false;
+			this->current->walls[1] = false;
+			next->walls[3] = false;
 		}
 
 		int y = this->current->y - next->y;
 		if (y == 1) {
-			this->current->walls[3] = false;
-			next->walls[1] = false;
+			this->current->walls[0] = false;
+			next->walls[2] = false;
 		}
 		else if (y == -1) {
-			this->current->walls[1] = false;
-			next->walls[3] = false;
+			this->current->walls[2] = false;
+			next->walls[0] = false;
 		}
 
 		this->current = next;

@@ -22,6 +22,8 @@ public:
 
 };
 
+class Character; // forward declaration
+
 class Maze {
 public:
 	unsigned int width, height;
