@@ -65,7 +65,7 @@ public:
 		return this->maze[x * this->width + y];
 	}
 	void generateMaze();
-	vector<float> toVertices();
+	void toVertices(vector<float>* vertices);
 
 private:
 	vector<Cell*> maze;
