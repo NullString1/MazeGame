@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <algorithm>
+#include "character.h"
 using namespace std;
 
 class Cell {
@@ -26,11 +27,13 @@ public:
 	unsigned int width, height;
 	bool doneGenerating = false;
 	Cell* current, *startPoint, *endPoint;
+	Character* player;
 
-	Maze(unsigned int width, unsigned int height) {
+	Maze(unsigned int width, unsigned int height, Character* character) {
 		this->width = width;
 		this->height = height;
 		this->maze = vector<Cell*>(this->width * this->height);
+		this->player = character;
 
 		for (unsigned int i = 0; i < this->width; i++) {
 			for (unsigned int j = 0; j < this->height; j++) {

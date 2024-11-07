@@ -1,4 +1,5 @@
 #include "maze.h"
+#include <chrono>
 
 vector<Cell*> stack;
 
@@ -16,7 +17,8 @@ void Maze::generateMaze() {
 	});
 
 	if (unvisited.size() > 0) {
-		Cell* next = unvisited[rand() % unvisited.size()];
+		unsigned int index = rand() % unvisited.size();
+		Cell* next = unvisited[index];
 		int x = this->current->x - next->x;
 		if (x == 1) {
 			this->current->walls[0] = false;

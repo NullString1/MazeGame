@@ -1,12 +1,17 @@
 #include "graphics.h"
 #include "maze.h"
+#include "character.h"
+#include <thread>
+
 int main() {
+	srand(time(0));
 	const int mazeSize = 16;
-	Maze maze(mazeSize, mazeSize);
+	Character character;
+	Maze maze(mazeSize, mazeSize, &character);
 
-	if (createWindow() != 0) 
+	if (createWindow() != 0)
 		return -1;
-	drawMaze(mazeSize, &maze);
-
+	
+	render(&maze);
 	return 0;
 }

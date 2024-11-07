@@ -141,6 +141,7 @@
     <ClCompile Include="maze.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="character.h" />
     <ClInclude Include="graphics.h" />
     <ClInclude Include="maze.h" />
     <ClInclude Include="shader.h" />
@@ -148,6 +149,11 @@
   <ItemGroup>
     <None Include="lineFrag.glsl" />
     <None Include="lineVertex.glsl" />
+    <None Include="characterFrag.glsl" />
+    <None Include="characterVertex.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\..\Downloads\results\character.DDS" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
