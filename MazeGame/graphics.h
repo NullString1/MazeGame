@@ -2,10 +2,12 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 #include "maze.h"
+#include "goal.h"
 #include <chrono>
 
 int createWindow();
-void render(Maze* maze);
+void render();
+int setupGraphics(Maze* _maze);
 void error_callback(int error, const char* description);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -14,6 +16,7 @@ float* hexColour2Float(int hexColour);
 void drawLines(std::vector<float> lv, unsigned int colour);
 GLuint loadDDSTexture(const char* path);
 void close();
+bool shouldClose();
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 struct DDS_PIXELFORMAT {

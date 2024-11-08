@@ -3,6 +3,10 @@
 
 vector<Cell*> stack;
 
+int random(int min, int max) {
+	return rand() % (max - min + 1) + min;
+}
+
 void Maze::generateMaze() {
 	if (!this->current->visited) {
 		this->current->visited = true;
@@ -48,7 +52,48 @@ void Maze::generateMaze() {
 	else {
 		this->doneGenerating = true;
 		this->startPoint = this->getCell(0, 0);
-		this->endPoint = this->getCell(rand() % this->width, rand() % this->height);
-
+		this->endPoint = this->getCell(random(this->width-this->width*0.15, this->width-1), random(this->height - this->height*0.15, this->height-1));
+		this->goals.push_back(new Goal(this->endPoint));
 	}
+}
+
+Cell::Cell(unsigned int x, unsigned int y) {
+	this->x = x;
+	this->y = y;
+}
+Cell* Maze::getCell(unsigned int x, unsigned int y) {
+	return this->maze[x * this->width + y];
+}
+
+Maze::Maze(unsigned int width, unsigned int height, Character* character) {
+	this->width = width;
+	this->height = height;
+	this->maze = vector<Cell*>(this->width * this->height);
+	this->player = character;
+
+	for (unsigned int i = 0; i < this->width; i++) {
+		for (unsigned int j = 0; j < this->height; j++) {
+			Cell* cell = new Cell(i, j);
+			cell->x = i;
+			cell->y = j;
+			this->maze[i * this->width + j] = new Cell(i, j);
+		}
+	}
+	for (unsigned int i = 0; i < this->width; i++) {
+		for (unsigned int j = 0; j < this->height; j++) {
+			Cell* cell = this->getCell(i, j);
+			if (j != 0) // if not top row
+				cell->neighbours.push_back(this->getCell(i, j - 1)); // top
+			if (i != 0) // if not left column
+				cell->neighbours.push_back(this->getCell(i - 1, j)); // left
+			if (j != this->height - 1) // if not bottom row
+				cell->neighbours.push_back(this->getCell(i, j + 1)); // bottom
+			if (i != this->width - 1) // if not right column
+				cell->neighbours.push_back(this->getCell(i + 1, j)); // right
+		}
+	}
+	this->current = this->getCell(0, 0);
+}
+bool Cell::getEdge(unsigned int edge) {
+	return this->walls[edge];
 }

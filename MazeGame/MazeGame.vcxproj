@@ -137,12 +137,14 @@
   <ItemGroup>
     <ClCompile Include="character.cpp" />
     <ClCompile Include="glad.c" />
+    <ClCompile Include="goal.cpp" />
     <ClCompile Include="graphics.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="maze.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="character.h" />
+    <ClInclude Include="goal.h" />
     <ClInclude Include="graphics.h" />
     <ClInclude Include="maze.h" />
     <ClInclude Include="shader.h" />

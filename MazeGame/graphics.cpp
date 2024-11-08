@@ -93,13 +93,13 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
 }
-void processInput(GLFWwindow* window, Maze* maze)
+void processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 }
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    if (action == GLFW_PRESS) {
+    if (action == GLFW_REPEAT || action == GLFW_PRESS) {
         switch (key)
         {
         case GLFW_KEY_W:
@@ -235,20 +235,20 @@ void Character::drawCharacter() {
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
-void Maze::drawGoal() {
-    float x = -0.9f + this->endPoint->x * 0.1f + 0.1f;
-    float y = 0.9f - this->endPoint->y * 0.1f;
-    float size = 0.1f;
+void Goal::draw() {
+    float x = -0.9f + this->getX() * 0.1f + 0.2f;
+    float y = 0.9f - this->getY() * 0.1f;
+    float size = 0.05f;
     goalShader->use();
     characterShader->setInt("texture1", 0);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, peppermintTexture);
 
     vector<float> vertices = {
-        x,          y,          0.0f,       1.0f, 1.0f, // top right
-        x,          y - size,   0.0f,       1.0f, 0.0f, // bottom right
-        x - size,   y - size,   0.0f,       0.0f, 0.0f, // bottom left
-        x - size,   y,          0.0f,       0.0f, 1.0f, // top left
+        x - 0.025f,              y - 0.025f,          0.0f,       1.0f, 1.0f, // top right
+        x - 0.025f,              y - size - 0.025f,   0.0f,       1.0f, 0.0f, // bottom right
+        x - size - 0.025f,       y - size - 0.025f,   0.0f,       0.0f, 0.0f, // bottom left
+        x - size - 0.025f,       y - 0.025f,          0.0f,       0.0f, 1.0f, // top left
 
     };
 
@@ -301,33 +301,42 @@ void Maze::toVertices(vector<float>* vertices) {
     }
 }
 
-void render(Maze* _maze) {
+int setupGraphics(Maze* _maze) {
+	if (createWindow() == -1)
+		return -1;
 	maze = _maze;
-	maze->player->setTexture(characterTexture);
-    vector<float> v;
-    while (!glfwWindowShouldClose(window))
-    {
-        glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-		startT = std::chrono::high_resolution_clock::now();
+    maze->player->setTexture(characterTexture);
+    return 0;
+}
 
-        if (!maze->doneGenerating){
-           maze->generateMaze();
-		   maze->toVertices(&v);
-        }
-        else {
-		    maze->drawGoal();
-        }
-		drawLines(v, 0xFF0A00FF, !maze->doneGenerating);
-	    maze->player->drawCharacter();
+void render() {
+    static vector<float> v;
+    glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+	startT = std::chrono::high_resolution_clock::now();
 
-		processInput(window, maze);
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-		endT = std::chrono::high_resolution_clock::now();
-		//Sleep(static_cast<DWORD>(std::max<long long>(0, 1000 / 60 - std::chrono::duration_cast<std::chrono::milliseconds>(endT - startT).count()))); // 60fps = 1000/60 = 16.666ms
+    if (!maze->doneGenerating){
+        maze->generateMaze();
+		maze->toVertices(&v);
     }
-	close();
+    else {
+        for_each(maze->goals.begin(), maze->goals.end(), [&](Goal* goal) {
+            if (goal->isVisible())
+                goal->draw();
+		});
+    }
+	drawLines(v, 0xFF0A00FF, !maze->doneGenerating);
+	maze->player->drawCharacter();
+
+	processInput(window);
+    glfwSwapBuffers(window);
+    glfwPollEvents();
+	endT = std::chrono::high_resolution_clock::now();
+	Sleep(static_cast<DWORD>(std::max<long long>(0, 1000 / 60 - std::chrono::duration_cast<std::chrono::milliseconds>(endT - startT).count()))); // 60fps = 1000/60 = 16.666ms
+}
+
+bool shouldClose() {
+	return glfwWindowShouldClose(window);
 }
 
 void close() {
