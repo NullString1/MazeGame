@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{33384811-40f3-4ea7-b7fb-02b237e34391}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -46,16 +49,37 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="lineVertex.glsl">
-      <Filter>Source Files</Filter>
+    <None Include="characterFrag.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="characterVertex.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="goalFrag.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="goalVertex.glsl">
+      <Filter>Shaders</Filter>
     </None>
     <None Include="lineFrag.glsl">
-      <Filter>Source Files</Filter>
+      <Filter>Shaders</Filter>
     </None>
-    <None Include="characterFrag.glsl" />
-    <None Include="characterVertex.glsl" />
+    <None Include="lineVertex.glsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\..\..\..\Downloads\results\character.DDS" />
+    <Image Include="character1.DDS">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="character2.DDS">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="lollipop.DDS">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="peppermint.DDS">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

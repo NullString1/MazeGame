@@ -6,10 +6,10 @@
 #include <windows.h>
 
 GLFWwindow* window;
-GLuint characterTexture;
-Shader *lineShader, *characterShader; 
+GLuint characterTexture, peppermintTexture;
+Shader *lineShader, *characterShader, *goalShader; 
 int lineWidth = 10;
-unsigned int mazeVAO, charVAO, mazeVBO, charVBO, EBO;
+unsigned int mazeVAO, charVAO, mazeVBO, charVBO, goalVBO, goalVAO, EBO;
 std::chrono::steady_clock::time_point startT, endT;
 Maze* maze;
 
@@ -44,7 +44,9 @@ int createWindow() { // https://learnopengl.com/Getting-started/Hello-Window
 
 	lineShader = new Shader("lineVertex.glsl", "lineFrag.glsl");
     characterShader = new Shader("characterVertex.glsl", "characterFrag.glsl");
+	goalShader = new Shader("goalVertex.glsl", "goalFrag.glsl");
     characterTexture = loadDDSTexture("C:\\Users\\bilbo\\source\\repos\\MazeGame\\MazeGame\\character1.DDS");
+	peppermintTexture = loadDDSTexture("C:\\Users\\bilbo\\source\\repos\\MazeGame\\MazeGame\\peppermint.DDS");
 	setupVAOVBO();
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -54,8 +56,10 @@ int createWindow() { // https://learnopengl.com/Getting-started/Hello-Window
 void setupVAOVBO() {
     glGenVertexArrays(1, &mazeVAO);
 	glGenVertexArrays(1, &charVAO);
+	glGenVertexArrays(1, &goalVAO);
     glGenBuffers(1, &mazeVBO);
 	glGenBuffers(1, &charVBO);
+	glGenBuffers(1, &goalVBO);
 	glGenBuffers(1, &EBO);
 
     glBindVertexArray(mazeVAO);
@@ -69,6 +73,13 @@ void setupVAOVBO() {
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);   // Position attribute = 0, 2 floats, no normalisation, 
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));     // Texture coords attribute = 0, 2 floats, no normalisation, 
 	                                                                                                    //no stride (space between values), offset of previous 3 floats
+	glEnableVertexAttribArray(0); // Enable vertex attribute
+	glEnableVertexAttribArray(1); // Enable texture attribute
+
+	glBindVertexArray(goalVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, goalVBO);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);   // Position attribute = 0, 2 floats, no normalisation, 
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));     // Texture coords attribute = 0, 2 floats, no normalisation, 
 	glEnableVertexAttribArray(0); // Enable vertex attribute
 	glEnableVertexAttribArray(1); // Enable texture attribute
 }
@@ -224,6 +235,37 @@ void Character::drawCharacter() {
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
+void Maze::drawGoal() {
+    float x = -0.9f + this->endPoint->x * 0.1f + 0.1f;
+    float y = 0.9f - this->endPoint->y * 0.1f;
+    float size = 0.1f;
+    goalShader->use();
+    characterShader->setInt("texture1", 0);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, peppermintTexture);
+
+    vector<float> vertices = {
+        x,          y,          0.0f,       1.0f, 1.0f, // top right
+        x,          y - size,   0.0f,       1.0f, 0.0f, // bottom right
+        x - size,   y - size,   0.0f,       0.0f, 0.0f, // bottom left
+        x - size,   y,          0.0f,       0.0f, 1.0f, // top left
+
+    };
+
+    vector<unsigned int> indices = {
+        0, 1, 3, // first triangle
+        1, 2, 3  // second triangle
+    };
+
+    glBindVertexArray(goalVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, goalVBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), indices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+}
+
 void Maze::toVertices(vector<float>* vertices) {
 	vertices->clear();
     for (unsigned int i = 0; i < this->height; i++) { // maze->height
@@ -265,16 +307,19 @@ void render(Maze* _maze) {
     vector<float> v;
     while (!glfwWindowShouldClose(window))
     {
-		startT = std::chrono::high_resolution_clock::now();
         glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+		startT = std::chrono::high_resolution_clock::now();
 
         if (!maze->doneGenerating){
            maze->generateMaze();
 		   maze->toVertices(&v);
         }
+        else {
+		    maze->drawGoal();
+        }
 		drawLines(v, 0xFF0A00FF, !maze->doneGenerating);
-		maze->player->drawCharacter();
+	    maze->player->drawCharacter();
 
 		processInput(window, maze);
         glfwSwapBuffers(window);

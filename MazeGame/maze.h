@@ -66,6 +66,7 @@ public:
 	}
 	void generateMaze();
 	void toVertices(vector<float>* vertices);
+	void drawGoal();
 
 private:
 	vector<Cell*> maze;
