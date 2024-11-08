@@ -8,14 +8,14 @@ int random(int min, int max) {
 }
 
 void Maze::generateMaze() {
-	if (!this->current->visited) {
-		this->current->visited = true;
+	if (!this->current->isVisited()) {
+		this->current->setVisited(true);
 		stack.push_back(this->current);
 	}
 
 	vector<Cell*> unvisited;
 	for_each(this->current->neighbours.begin(), this->current->neighbours.end(), [&](Cell* cell) {
-		if (!cell->visited) {
+		if (!cell->isVisited()) {
 			unvisited.push_back(cell);
 		}
 	});
@@ -23,7 +23,7 @@ void Maze::generateMaze() {
 	if (unvisited.size() > 0) {
 		unsigned int index = rand() % unvisited.size();
 		Cell* next = unvisited[index];
-		int x = this->current->x - next->x;
+		int x = this->current->getX() - next->getX();
 		if (x == 1) {
 			this->current->walls[3] = false;
 			next->walls[1] = false;
@@ -33,7 +33,7 @@ void Maze::generateMaze() {
 			next->walls[3] = false;
 		}
 
-		int y = this->current->y - next->y;
+		int y = this->current->getY() - next->getY();
 		if (y == 1) {
 			this->current->walls[0] = false;
 			next->walls[2] = false;
@@ -65,6 +65,22 @@ Cell* Maze::getCell(unsigned int x, unsigned int y) {
 	return this->maze[x * this->width + y];
 }
 
+bool Cell::isVisited() {
+	return this->visited;
+}
+
+bool Cell::setVisited(bool v) {
+	return this->visited = v;
+}
+
+unsigned int Cell::getX() {
+	return this->x;
+}
+
+unsigned int Cell::getY() {
+	return this->y;
+}
+
 Maze::Maze(unsigned int width, unsigned int height, Character* character) {
 	this->width = width;
 	this->height = height;
@@ -74,8 +90,8 @@ Maze::Maze(unsigned int width, unsigned int height, Character* character) {
 	for (unsigned int i = 0; i < this->width; i++) {
 		for (unsigned int j = 0; j < this->height; j++) {
 			Cell* cell = new Cell(i, j);
-			cell->x = i;
-			cell->y = j;
+			cell->setX(i);
+			cell->setY(j);
 			this->maze[i * this->width + j] = new Cell(i, j);
 		}
 	}
@@ -96,4 +112,24 @@ Maze::Maze(unsigned int width, unsigned int height, Character* character) {
 }
 bool Cell::getEdge(unsigned int edge) {
 	return this->walls[edge];
+}
+
+unsigned int Maze::getWidth() {
+	return this->width;
+}
+
+unsigned int Maze::getHeight() {
+	return this->height;
+}
+
+unsigned int Cell::setX(unsigned int x) {
+	return this->x = x;
+}
+
+unsigned int Cell::setY(unsigned int y) {
+	return this->y = y;
+}
+
+bool Maze::isDoneGenerating() {
+	return this->doneGenerating;
 }

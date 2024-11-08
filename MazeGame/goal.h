@@ -11,13 +11,10 @@ public:
 	unsigned int getX();
 	unsigned int getY();
 	void setTexture(GLuint texture);
+	void setVisible(bool visible);
+	bool isVisible();
 	void draw();
-	void setVisible(bool visible) {
-		this->visible = visible;
-	}
-	bool isVisible() {
-		return this->visible;
-	}
+	
 private:
 	unsigned int x, y;
 	GLuint texture;

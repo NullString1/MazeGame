@@ -22,11 +22,14 @@ int gameLoop(Maze* maze, Character* character) {
 int main() {
 	srand((unsigned int) time(0));
 	const int mazeSize = 10;
+
 	Character character;
 	Maze maze(mazeSize, mazeSize, &character);
+
 	character.setMaze(&maze);
 
 	gameLoop(&maze, &character);
+
 	close();
 	return 0;
 }

@@ -6,14 +6,14 @@
 #include <chrono>
 
 int createWindow();
-void render();
 int setupGraphics(Maze* _maze);
+void render();
+void setupVAOVBO();
+float* hexColour2Float(int hexColour);
+void drawLines(std::vector<float> lv, unsigned int colour, bool doBuffer);
 void error_callback(int error, const char* description);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
-void setupVAOVBO();
-float* hexColour2Float(int hexColour);
-void drawLines(std::vector<float> lv, unsigned int colour);
 GLuint loadDDSTexture(const char* path);
 void close();
 bool shouldClose();

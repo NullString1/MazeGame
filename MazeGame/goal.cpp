@@ -5,8 +5,8 @@ Goal::Goal(unsigned int x, unsigned int y) {
 	this->y = y;
 }
 Goal::Goal(Cell* cell) {
-	this->x = cell->x;
-	this->y = cell->y;
+	this->x = cell->getX();
+	this->y = cell->getY();
 }
 unsigned int Goal::getX() {
 	return this->x;
@@ -16,4 +16,10 @@ unsigned int Goal::getY() {
 }
 void Goal::setTexture(GLuint texture) {
 	this->texture = texture;
+}
+void Goal::setVisible(bool visible) {
+	this->visible = visible;
+}
+bool Goal::isVisible() {
+	return this->visible;
 }

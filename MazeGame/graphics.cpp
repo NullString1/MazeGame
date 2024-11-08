@@ -6,12 +6,11 @@
 #include <windows.h>
 
 GLFWwindow* window;
-GLuint characterTexture, peppermintTexture;
+GLuint characterTexture, peppermintTexture, mazeVAO, charVAO, mazeVBO, charVBO, goalVBO, goalVAO, EBO;
 Shader *lineShader, *characterShader, *goalShader; 
-int lineWidth = 10;
-unsigned int mazeVAO, charVAO, mazeVBO, charVBO, goalVBO, goalVAO, EBO;
 std::chrono::steady_clock::time_point startT, endT;
 Maze* maze;
+int lineWidth = 10;
 
 int createWindow() { // https://learnopengl.com/Getting-started/Hello-Window
     if (!glfwInit()) {
@@ -93,11 +92,13 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
 }
+
 void processInput(GLFWwindow* window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 }
+
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (action == GLFW_REPEAT || action == GLFW_PRESS) {
         switch (key)
@@ -315,7 +316,7 @@ void render() {
     glClear(GL_COLOR_BUFFER_BIT);
 	startT = std::chrono::high_resolution_clock::now();
 
-    if (!maze->doneGenerating){
+    if (!maze->isDoneGenerating()){
         maze->generateMaze();
 		maze->toVertices(&v);
     }
@@ -325,7 +326,7 @@ void render() {
                 goal->draw();
 		});
     }
-	drawLines(v, 0xFF0A00FF, !maze->doneGenerating);
+	drawLines(v, 0xFF0A00FF, !maze->isDoneGenerating());
 	maze->player->drawCharacter();
 
 	processInput(window);

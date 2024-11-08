@@ -1,36 +1,45 @@
 #include "character.h"
 
+unsigned int Character::getX() {
+	return this->pos[0];
+}
+unsigned int Character::getY() {
+	return this->pos[1];
+}
+unsigned int Character::getScore() {
+	return this->score;
+}
+void Character::setX(unsigned int x) {
+	this->pos[0] = x;
+}
+void Character::setY(unsigned int y) {
+	this->pos[1] = y;
+}
+void Character::setScore(unsigned int score) {
+	this->score = score;
+}
+void Character::incrementScore() {
+	this->score++;
+}
+void Character::setTexture(GLuint texture) {
+	this->characterTexture = texture;
+}
+void Character::setMaze(Maze* _maze) {
+	this->maze = _maze;
+}
+
 unsigned int* Character::move(Direction direction) {
 	Cell* currentCell = this->maze->getCell(this->pos[0], this->pos[1]);
-	Cell* nextCell = nullptr;
-	switch (direction) {
-	case UP:
-		if (this->pos[1] == 0) return this->pos;
-		nextCell = this->maze->getCell(this->pos[0], this->pos[1] - 1);
-		break;
-	case RIGHT:
-		if (this->pos[0] == this->maze->width - 1) return this->pos;
-		nextCell = this->maze->getCell(this->pos[0] + 1, this->pos[1]);
-		break;
-	case DOWN:
-		if (this->pos[1] == this->maze->height - 1) return this->pos;
-		nextCell = this->maze->getCell(this->pos[0], this->pos[1] + 1);
-		break;
-	case LEFT:
-		if (this->pos[0] == 0) return this->pos;
-		nextCell = this->maze->getCell(this->pos[0] - 1, this->pos[1]);
-		break;
-	}
-	if (!currentCell->getEdge(direction) || !nextCell->getEdge((direction+2) %4)){
+	if (!currentCell->getEdge(direction)){
 		switch (direction) {
 		case UP:
 			this->pos[1]--;
 			break;
-		case RIGHT:
-			this->pos[0]++;
-			break;
 		case DOWN:
 			this->pos[1]++;
+			break;
+		case RIGHT:
+			this->pos[0]++;
 			break;
 		case LEFT:
 			this->pos[0]--;
