@@ -10,7 +10,7 @@ public:
 	bool isVisible();
 	GLuint getTexture();
 	float getSize();
-	static GLuint texture;
+	inline static GLuint texture;
 	using GameObject::GameObject;
 private:
 	bool visible = true;

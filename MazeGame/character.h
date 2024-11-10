@@ -8,7 +8,7 @@ public:
 	void setScore(unsigned int score);
 	void incrementScore();
 	GLuint getTexture();
-	static GLuint texture;
+	inline static GLuint texture;
 	using GameObject::GameObject;
 private:
 	unsigned int score = 0;

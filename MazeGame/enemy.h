@@ -7,6 +7,6 @@ class Enemy : public GameObject
 public:
 	void tick();
 	GLuint getTexture();
-	static GLuint texture;
+	inline static GLuint texture;
 	using GameObject::GameObject;
 };
