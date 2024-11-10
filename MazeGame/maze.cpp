@@ -55,9 +55,9 @@ void Maze::generateMaze() {
 	else {
 		this->doneGenerating = true;
 		this->startPoint = this->getCell(0, 0);
-		this->endPoint = this->getCell(random(this->width-this->width*0.15, this->width-1), random(this->height - this->height*0.15, this->height-1));
+		this->endPoint = this->getCell(random(this->width-this->width*0.2, this->width-1), random(this->height - this->height*0.2, this->height-1));
 		this->goals.push_back(new Goal(this->endPoint));
-		this->enemies.push_back(new Enemy(this->getCell(random(this->width - this->width * 0.15, this->width - 1), random(this->height - this->height * 0.15, this->height - 1))));
+		this->enemies.push_back(new Enemy(this->getCell(random(this->width - this->width * 0.5, this->width - 1), random(this->height - this->height * 0.5, this->height - 1))));
 	}
 }
 
