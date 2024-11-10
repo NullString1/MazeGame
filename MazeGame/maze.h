@@ -1,12 +1,11 @@
 #pragma once
 #include <vector>
 #include <algorithm>
-#include "character.h"
-#include "goal.h"
 using namespace std;
 
 class Character; // forward declaration
 class Goal; // forward declaration
+class Enemy; // forward declaration
 
 class Cell {
 public:
@@ -30,6 +29,7 @@ public:
 	Cell* current, *startPoint, *endPoint;
 	Character* player;
 	vector<Goal*> goals;
+	vector<Enemy*> enemies;
 
 	Maze(unsigned int width, unsigned int height, Character* character);
 

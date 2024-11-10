@@ -1,5 +1,8 @@
-#include "maze.h"
 #include <chrono>
+#include "maze.h"
+#include "goal.h"
+#include "character.h"
+#include "enemy.h"
 
 vector<Cell*> stack;
 
@@ -54,6 +57,7 @@ void Maze::generateMaze() {
 		this->startPoint = this->getCell(0, 0);
 		this->endPoint = this->getCell(random(this->width-this->width*0.15, this->width-1), random(this->height - this->height*0.15, this->height-1));
 		this->goals.push_back(new Goal(this->endPoint));
+		this->enemies.push_back(new Enemy(this->getCell(random(this->width - this->width * 0.15, this->width - 1), random(this->height - this->height * 0.15, this->height - 1))));
 	}
 }
 

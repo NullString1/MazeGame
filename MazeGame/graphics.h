@@ -1,9 +1,14 @@
 #pragma once
+#include <chrono>
+#include <vector>
+#include <windows.h>
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 #include "maze.h"
+#include "shader.h"
 #include "goal.h"
-#include <chrono>
+#include "character.h"
+#include "enemy.h"
 
 int createWindow();
 int setupGraphics(Maze* _maze);

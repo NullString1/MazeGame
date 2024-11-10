@@ -1,7 +1,7 @@
-#include "graphics.h"
-#include "maze.h"
-#include "character.h"
 #include <thread>
+#include "graphics.h"
+#include "character.h"
+#include "maze.h"
 
 int gameLoop(Maze* maze, Character* character) {
 	if (setupGraphics(maze) != 0)
@@ -9,11 +9,11 @@ int gameLoop(Maze* maze, Character* character) {
 
 	while (!shouldClose()) {
 		for_each(maze->goals.begin(), maze->goals.end(), [&](Goal* goal) {
-			if (character->getX() == goal->getX() && character->getY() == goal->getY()) {
+			if (goal->isVisible() && character->getX() == goal->getX() && character->getY() == goal->getY()) {
 				character->incrementScore();
 				goal->setVisible(false);
 			}
-			});
+		});
 		render();
 	}
 	return 0;

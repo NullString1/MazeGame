@@ -1,22 +1,17 @@
 #pragma once
 #include "glad/glad.h"
-#include "maze.h"
+#include "gameObject.h"
 
 class Cell; // forward declaration
 
-class Goal {
+class Goal: public GameObject {
 public:
-	Goal(unsigned int x, unsigned int y);
-	Goal(Cell* cell);
-	unsigned int getX();
-	unsigned int getY();
-	void setTexture(GLuint texture);
 	void setVisible(bool visible);
 	bool isVisible();
-	void draw();
-	
+	GLuint getTexture();
+	float getSize();
+	static GLuint texture;
+	using GameObject::GameObject;
 private:
-	unsigned int x, y;
-	GLuint texture;
 	bool visible = true;
 };

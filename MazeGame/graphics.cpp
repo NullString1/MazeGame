@@ -1,13 +1,12 @@
 #define NOMINMAX
+#include <typeinfo>
 #include "graphics.h"
-#include "shader.h"
-#include "character.h"
-#include <vector>
-#include <windows.h>
+#include "font.h"
+#include <format>
 
 GLFWwindow* window;
 GLuint characterTexture, peppermintTexture, mazeVAO, charVAO, mazeVBO, charVBO, goalVBO, goalVAO, EBO;
-Shader *lineShader, *characterShader, *goalShader; 
+Shader *lineShader, *characterShader, *goalShader, *textShader; 
 std::chrono::steady_clock::time_point startT, endT;
 Maze* maze;
 int lineWidth = 10;
@@ -44,6 +43,7 @@ int createWindow() { // https://learnopengl.com/Getting-started/Hello-Window
 	lineShader = new Shader("lineVertex.glsl", "lineFrag.glsl");
     characterShader = new Shader("characterVertex.glsl", "characterFrag.glsl");
 	goalShader = new Shader("goalVertex.glsl", "goalFrag.glsl");
+	textShader = new Shader("textVertex.glsl", "textFrag.glsl");
     characterTexture = loadDDSTexture("C:\\Users\\bilbo\\source\\repos\\MazeGame\\MazeGame\\character1.DDS");
 	peppermintTexture = loadDDSTexture("C:\\Users\\bilbo\\source\\repos\\MazeGame\\MazeGame\\peppermint.DDS");
 	setupVAOVBO();
@@ -205,66 +205,64 @@ GLuint loadDDSTexture(const char* path) {
 	return textureID;
 }
 
-void Character::drawCharacter() {
-	float x = -0.9f + this->getX() * 0.1f + 0.2f;
-	float y = 0.9f - this->getY() * 0.1f;
-    float size = 0.1f;
+void normaliseCoords(float x, float y, float& _x, float& _y) {
+	_x = -0.9f + x * 0.1f + 0.2f;
+	_y = 0.9f - y * 0.1f;
+}
+
+float* normaliseCoords(float x, float y) {
+	static float out[2];
+	out[0] = -0.9f + x * 0.1f + 0.2f;
+	out[1] = 0.9f - y * 0.1f;
+	return out;
+}
+
+void GameObject::draw() {
+    float x, y;
+    normaliseCoords(this->x, this->y, x, y);
+	bool isGoal = dynamic_cast<Goal*>(this) != NULL;
     characterShader->use();
 	characterShader->setInt("texture1", 0);
 	glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, characterTexture);
+    glBindTexture(GL_TEXTURE_2D, this->getTexture());
+	GLuint *VAO, *VBO;
+    vector<float> vertices;
+	float size = this->getSize();
+    if (!isGoal) {
+        vertices = {
+            x,          y,            0.0f,       1.0f,   1.0f, // top right
+            x,          y - size,     0.0f,       1.0f,   0.0f, // bottom right
+            x - size,   y - size,     0.0f,       0.0f,   0.0f, // bottom left
+            x - size,   y,            0.0f,       0.0f,   1.0f, // top left
 
-    vector<float> vertices = {
-        x,          y,          0.0f,       1.0f, 1.0f, // top right
-        x,          y - size,   0.0f,       1.0f, 0.0f, // bottom right
-        x - size,   y - size,   0.0f,       0.0f, 0.0f, // bottom left
-        x - size,   y,          0.0f,       0.0f, 1.0f, // top left
+        };
+		VAO = &charVAO;
+		VBO = &charVBO;
+    }
+    else {
+        vertices = {
+        x - 0.025f,               y - 0.025f,           0.0f,       1.0f, 1.0f, // top right
+        x - 0.025f,               y - size - 0.025f,    0.0f,       1.0f, 0.0f, // bottom right
+        x - size - 0.025f,        y - size - 0.025f,    0.0f,       0.0f, 0.0f, // bottom left
+        x - size - 0.025f,        y - 0.025f,           0.0f,       0.0f, 1.0f, // top left
 
-    };
+        };
+		VAO = &goalVAO;
+		VBO = &goalVBO;
+    }
 
     vector<unsigned int> indices = {
 		0, 1, 3, // first triangle
 		1, 2, 3  // second triangle
 	};
 
-	glBindVertexArray(charVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, charVBO);
+	glBindVertexArray(*VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, *VBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), indices.data(), GL_STATIC_DRAW);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float)*vertices.size(), vertices.data(), GL_STATIC_DRAW);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-}
-
-void Goal::draw() {
-    float x = -0.9f + this->getX() * 0.1f + 0.2f;
-    float y = 0.9f - this->getY() * 0.1f;
-    float size = 0.05f;
-    goalShader->use();
-    characterShader->setInt("texture1", 0);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, peppermintTexture);
-
-    vector<float> vertices = {
-        x - 0.025f,              y - 0.025f,          0.0f,       1.0f, 1.0f, // top right
-        x - 0.025f,              y - size - 0.025f,   0.0f,       1.0f, 0.0f, // bottom right
-        x - size - 0.025f,       y - size - 0.025f,   0.0f,       0.0f, 0.0f, // bottom left
-        x - size - 0.025f,       y - 0.025f,          0.0f,       0.0f, 1.0f, // top left
-
-    };
-
-    vector<unsigned int> indices = {
-        0, 1, 3, // first triangle
-        1, 2, 3  // second triangle
-    };
-
-    glBindVertexArray(goalVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, goalVBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), indices.data(), GL_STATIC_DRAW);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
 void Maze::toVertices(vector<float>* vertices) {
@@ -302,12 +300,21 @@ void Maze::toVertices(vector<float>* vertices) {
     }
 }
 
+GLuint Goal::texture, Character::texture, Enemy::texture;
+
 int setupGraphics(Maze* _maze) {
 	if (createWindow() == -1)
 		return -1;
+	loadFont();
 	maze = _maze;
-    maze->player->setTexture(characterTexture);
+	Goal::texture = peppermintTexture;
+	Character::texture = characterTexture;
+	Enemy::texture = characterTexture;
     return 0;
+}
+
+void drawScore(Character* chr) {
+	drawText(std::format("Score: {}", chr->getScore()).c_str(), 20.0f, 40.0f, 1.0f, textShader);
 }
 
 void render() {
@@ -325,9 +332,13 @@ void render() {
             if (goal->isVisible())
                 goal->draw();
 		});
+        for_each(maze->enemies.begin(), maze->enemies.end(), [&](Enemy* enemy) {
+            enemy->draw();
+			});
     }
 	drawLines(v, 0xFF0A00FF, !maze->isDoneGenerating());
-	maze->player->drawCharacter();
+	maze->player->draw();
+    drawScore(maze->player);
 
 	processInput(window);
     glfwSwapBuffers(window);
