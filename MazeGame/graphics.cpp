@@ -4,17 +4,6 @@
 #include "font.h"
 #include <format>
 
-class Game {
-public:
-    inline static GLFWwindow* window;
-    inline static GLuint characterTexture, peppermintTexture, mazeVAO, charVAO, mazeVBO, charVBO, goalVBO, goalVAO, EBO;
-    inline static Shader *lineShader, *characterShader, *goalShader, *textShader; 
-    inline static std::chrono::steady_clock::time_point startT, endT;
-    inline static Maze* maze;
-    inline const static int lineWidth = 10;
-};
-
-
 int createWindow() { // https://learnopengl.com/Getting-started/Hello-Window
     if (!glfwInit()) {
         fprintf_s(stderr, "Failed to initialize GLFW\n");
@@ -24,6 +13,7 @@ int createWindow() { // https://learnopengl.com/Getting-started/Hello-Window
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4); // OpenGL 4.6
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
 	Game::window = glfwCreateWindow(1000, 1000, "MazeGame", NULL, NULL); // 1000x1000 window
     if (!Game::window)
     {   
@@ -38,6 +28,7 @@ int createWindow() { // https://learnopengl.com/Getting-started/Hello-Window
 		fprintf_s(stderr, "Failed to initialize GLAD\n");
         return -1;
     }
+
     int width, height;
     glfwGetFramebufferSize(Game::window, &width, &height);
 	glfwSetFramebufferSizeCallback(Game::window, framebuffer_size_callback);
@@ -50,7 +41,9 @@ int createWindow() { // https://learnopengl.com/Getting-started/Hello-Window
     Game::textShader = new Shader("textVertex.glsl", "textFrag.glsl");
     Game::characterTexture = loadDDSTexture("C:\\Users\\bilbo\\source\\repos\\MazeGame\\MazeGame\\character1.DDS");
     Game::peppermintTexture = loadDDSTexture("C:\\Users\\bilbo\\source\\repos\\MazeGame\\MazeGame\\peppermint.DDS");
+
 	setupVAOVBO();
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     return 0;
@@ -60,6 +53,7 @@ void setupVAOVBO() {
     glGenVertexArrays(1, &Game::mazeVAO);
 	glGenVertexArrays(1, &Game::charVAO);
 	glGenVertexArrays(1, &Game::goalVAO);
+
     glGenBuffers(1, &Game::mazeVBO);
 	glGenBuffers(1, &Game::charVBO);
 	glGenBuffers(1, &Game::goalVBO);
@@ -68,11 +62,11 @@ void setupVAOVBO() {
     glBindVertexArray(Game::mazeVAO);
     glBindBuffer(GL_ARRAY_BUFFER, Game::mazeVBO);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);   // Position attribute = 0, 2 floats, no normalisation, 
+
     glEnableVertexAttribArray(0); // Enable vertex attribute
 
 	glBindVertexArray(Game::charVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, Game::charVBO);
-
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);   // Position attribute = 0, 2 floats, no normalisation, 
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));     // Texture coords attribute = 0, 2 floats, no normalisation, 
 	                                                                                                    //no stride (space between values), offset of previous 3 floats
@@ -83,6 +77,7 @@ void setupVAOVBO() {
 	glBindBuffer(GL_ARRAY_BUFFER, Game::goalVBO);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);   // Position attribute = 0, 2 floats, no normalisation, 
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));     // Texture coords attribute = 0, 2 floats, no normalisation, 
+
 	glEnableVertexAttribArray(0); // Enable vertex attribute
 	glEnableVertexAttribArray(1); // Enable texture attribute
 }
@@ -209,12 +204,12 @@ GLuint loadDDSTexture(const char* path) {
 	return textureID;
 }
 
-void normaliseCoords(float x, float y, float& _x, float& _y) {
+inline void normaliseCoords(unsigned int x, unsigned int y, float& _x, float& _y) {
 	_x = -0.9f + x * 0.1f + 0.2f;
 	_y = 0.9f - y * 0.1f;
 }
 
-float* normaliseCoords(float x, float y) {
+inline float* normaliseCoords(unsigned int x, unsigned int y) {
 	static float out[2];
 	out[0] = -0.9f + x * 0.1f + 0.2f;
 	out[1] = 0.9f - y * 0.1f;
@@ -224,14 +219,18 @@ float* normaliseCoords(float x, float y) {
 void GameObject::draw() {
     float x, y;
     normaliseCoords(this->x, this->y, x, y);
-	bool isGoal = dynamic_cast<Goal*>(this) != NULL;
-    Game::characterShader->use();
-    Game::characterShader->setInt("texture1", 0);
-	glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, this->getTexture());
+	const bool isGoal = dynamic_cast<Goal*>(this) != NULL;
 	GLuint *VAO, *VBO;
     vector<float> vertices;
-	float size = this->getSize();
+	vertices.reserve(20);
+
+    Game::characterShader->use();
+    Game::characterShader->setInt("texture1", 0);
+
+	glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, this->getTexture());
+
+	const float size = this->getSize();
     if (!isGoal) {
         vertices = {
             x,          y,            0.0f,       1.0f,   1.0f, // top right
@@ -255,7 +254,7 @@ void GameObject::draw() {
 		VBO = &Game::goalVBO;
     }
 
-    vector<unsigned int> indices = {
+    const vector<unsigned int> indices = {
 		0, 1, 3, // first triangle
 		1, 2, 3  // second triangle
 	};
@@ -274,10 +273,10 @@ void Maze::toVertices(vector<float>* vertices) {
     for (unsigned int i = 0; i < this->height; i++) { // maze->height
         for (unsigned int j = 0; j < this->width; j++) { // maze->width
             Cell* cell = this->getCell(j,i);
-            float x = -0.9f + j * 0.1f + 0.1f;
-            float y = 0.9f - i * 0.1f;
-            float length = 0.1f;
-            float space = 0.1f;
+            const float x = -0.9f + j * 0.1f + 0.1f;
+            const float y = 0.9f - i * 0.1f;
+            const float length = 0.1f;
+            const float space = 0.1f;
             std::vector<float> v;
             // draw top edge
             if (cell->getEdge(0)) {
@@ -315,21 +314,21 @@ int setupGraphics(Maze* _maze) {
     return 0;
 }
 
-void drawScore(Character* chr) {
+inline void drawScore(Character* chr) {
 	drawText(std::format("Score: {}", chr->getScore()).c_str(), 20.0f, 40.0f, 1.0f, Game::textShader);
 }
 
 void render() {
     static vector<float> v;
-    glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
     Game::startT = std::chrono::high_resolution_clock::now();
 
-    if (!Game::maze->isDoneGenerating()){
+    glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    if (!Game::maze->isDoneGenerating()) {
         Game::maze->generateMaze();
         Game::maze->toVertices(&v);
-    }
-    else {
+    } else {
         for_each(Game::maze->goals.begin(), Game::maze->goals.end(), [&](Goal* goal) {
             if (goal->isVisible())
                 goal->draw();
@@ -338,6 +337,7 @@ void render() {
             enemy->draw();
 			});
     }
+
 	drawLines(v, 0xFF0A00FF, !Game::maze->isDoneGenerating());
     Game::maze->player->draw();
     drawScore(Game::maze->player);
@@ -345,12 +345,9 @@ void render() {
 	processInput(Game::window);
     glfwSwapBuffers(Game::window);
     glfwPollEvents();
+    
     Game::endT = std::chrono::high_resolution_clock::now();
 	Sleep(static_cast<DWORD>(std::max<long long>(0, 1000 / 60 - std::chrono::duration_cast<std::chrono::milliseconds>(Game::endT - Game::startT).count()))); // 60fps = 1000/60 = 16.666ms
-}
-
-bool shouldClose() {
-	return glfwWindowShouldClose(Game::window);
 }
 
 void close() {

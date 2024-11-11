@@ -21,8 +21,21 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 GLuint loadDDSTexture(const char* path);
 void close();
-bool shouldClose();
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+
+class Game {
+public:
+    inline static GLFWwindow* window;
+    inline static GLuint characterTexture, peppermintTexture, mazeVAO, charVAO, mazeVBO, charVBO, goalVBO, goalVAO, EBO;
+    inline static Shader* lineShader, * characterShader, * goalShader, * textShader;
+    inline static std::chrono::steady_clock::time_point startT, endT;
+    inline static Maze* maze;
+    inline const static int lineWidth = 10;
+};
+
+inline bool shouldClose() {
+    return glfwWindowShouldClose(Game::window);
+};
 
 struct DDS_PIXELFORMAT {
     uint32_t dwSize;

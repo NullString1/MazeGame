@@ -13,13 +13,13 @@ int random(int min, int max) {
 void Maze::generateMaze() {
 	if (!this->current->isVisited()) {
 		this->current->setVisited(true);
-		stack.push_back(this->current);
+		stack.emplace_back(this->current);
 	}
 
 	vector<Cell*> unvisited;
 	for_each(this->current->neighbours.begin(), this->current->neighbours.end(), [&](Cell* cell) {
 		if (!cell->isVisited()) {
-			unvisited.push_back(cell);
+			unvisited.emplace_back(cell);
 		}
 	});
 
@@ -55,9 +55,17 @@ void Maze::generateMaze() {
 	else {
 		this->doneGenerating = true;
 		this->startPoint = this->getCell(0, 0);
-		this->endPoint = this->getCell(random(this->width-this->width*0.2, this->width-1), random(this->height - this->height*0.2, this->height-1));
-		this->goals.push_back(new Goal(this->endPoint));
-		this->enemies.push_back(new Enemy(this->getCell(random(this->width - this->width * 0.5, this->width - 1), random(this->height - this->height * 0.5, this->height - 1))));
+		this->endPoint = this->getCell(random(static_cast<int>(this->width-this->width*0.2), this->width-1), 
+			random(static_cast<int>(this->height - this->height*0.2), this->height-1));
+		this->goals.emplace_back(new Goal(this->endPoint));
+		this->enemies.emplace_back(
+			new Enemy(
+				this->getCell(
+					random(static_cast<int>(this->width - this->width * 0.5), this->width - 1),
+					random(static_cast<int>(this->height - this->height * 0.5), this->height - 1)
+				)
+			)
+		);
 	}
 }
 
@@ -103,13 +111,13 @@ Maze::Maze(unsigned int width, unsigned int height, Character* character) {
 		for (unsigned int j = 0; j < this->height; j++) {
 			Cell* cell = this->getCell(i, j);
 			if (j != 0) // if not top row
-				cell->neighbours.push_back(this->getCell(i, j - 1)); // top
+				cell->neighbours.emplace_back(this->getCell(i, j - 1)); // top
 			if (i != 0) // if not left column
-				cell->neighbours.push_back(this->getCell(i - 1, j)); // left
+				cell->neighbours.emplace_back(this->getCell(i - 1, j)); // left
 			if (j != this->height - 1) // if not bottom row
-				cell->neighbours.push_back(this->getCell(i, j + 1)); // bottom
+				cell->neighbours.emplace_back(this->getCell(i, j + 1)); // bottom
 			if (i != this->width - 1) // if not right column
-				cell->neighbours.push_back(this->getCell(i + 1, j)); // right
+				cell->neighbours.emplace_back(this->getCell(i + 1, j)); // right
 		}
 	}
 	this->current = this->getCell(0, 0);
