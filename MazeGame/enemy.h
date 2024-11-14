@@ -1,6 +1,7 @@
 #pragma once
 #include <glad/glad.h>
 #include <queue>
+#include <stack>
 #include "gameObject.h"
 
 
@@ -19,4 +20,4 @@ public:
 
 typedef std::pair<unsigned int, unsigned int> CoordPair;
 
-std::vector<CoordPair> findPathBFS(Cell* startCell, Cell* goalCell);
+std::stack<CoordPair> findPathBFS(Cell* startCell, Cell* goalCell);

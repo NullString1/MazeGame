@@ -5,10 +5,11 @@
 void Enemy::tick() {
 	if (this->ticksSinceLastPF > (5*this->minTicksSinceLastMove) || this->moves.empty()) {
 		unsigned int target[2] = { Game::maze->player->getX(), Game::maze->player->getY()};
-		std::vector<CoordPair> path = findPathBFS(Game::maze->getCell(this->getX(), this->getY()), Game::maze->getCell(target[0], target[1]));
-		std::reverse(path.begin(), path.end());
+		std::stack<CoordPair> path = findPathBFS(Game::maze->getCell(this->getX(), this->getY()), Game::maze->getCell(target[0], target[1]));
 		CoordPair previous = CoordPair(this->getX(), this->getY());
-		for (CoordPair cell : path) {
+		for (unsigned int i = 0; i<path.size(); i++) {
+			CoordPair cell = path.top();
+			path.pop();
 			if (cell.first > previous.first) {
 				this->moves.emplace(GameObject::Direction::RIGHT);
 			}
@@ -23,7 +24,6 @@ void Enemy::tick() {
 			}
 			previous = cell;
 		}
-		path.clear();
 		this->ticksSinceLastPF = 0;
 	}
 	if (this->moves.size() > 0 && this->ticksSinceLastMove > this->minTicksSinceLastMove) {
@@ -35,7 +35,7 @@ void Enemy::tick() {
 
 };
 
-std::vector<CoordPair> findPathBFS(Cell* startCell, Cell* goalCell) {
+std::stack<CoordPair> findPathBFS(Cell* startCell, Cell* goalCell) {
 	std::queue<CoordPair> queue;
 	std::map<CoordPair, CoordPair> cameFrom;
 
@@ -59,13 +59,13 @@ std::vector<CoordPair> findPathBFS(Cell* startCell, Cell* goalCell) {
 			}
 		}
 	}
-	std::vector<CoordPair> path;
+	std::stack<CoordPair> path;
 	CoordPair end = goal;
 	if (cameFrom.count(end) == 0) {
 		return path;
 	}
 	while (end != CoordPair(MAXDWORD, MAXDWORD)) {
-		path.emplace_back(end);
+		path.emplace(end);
 		end = cameFrom.at(end);
 	}
 	return path;
