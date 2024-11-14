@@ -127,7 +127,7 @@ float* hexColour2Float(int hexColour) {
 	return out;
 }
 
-void drawLines(std::vector<float> lv, unsigned int colour, bool doBuffer) {
+void drawLines(std::vector<float>& lv, unsigned int colour, bool doBuffer) {
     Game::lineShader->use();
     Game::lineShader->setFloat4("colour", hexColour2Float(colour));
     glBindVertexArray(Game::mazeVAO);
@@ -221,17 +221,16 @@ void GameObject::draw() {
     normaliseCoords(this->x, this->y, x, y);
 	const bool isGoal = dynamic_cast<Goal*>(this) != NULL;
 	GLuint *VAO, *VBO;
-    vector<float> vertices;
+    std::vector<float> vertices;
 	vertices.reserve(20);
 
-    Game::characterShader->use();
-    Game::characterShader->setInt("texture1", 0);
-
-	glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, this->getTexture());
 
 	const float size = this->getSize();
     if (!isGoal) {
+        Game::characterShader->use();
+        Game::characterShader->setInt("texture1", 0);
         vertices = {
             x,          y,            0.0f,       1.0f,   1.0f, // top right
             x,          y - size,     0.0f,       1.0f,   0.0f, // bottom right
@@ -243,6 +242,8 @@ void GameObject::draw() {
 		VBO = &Game::charVBO;
     }
     else {
+		Game::goalShader->use();
+		Game::goalShader->setInt("texture1", 0);
         vertices = {
         x - 0.025f,               y - 0.025f,           0.0f,       1.0f, 1.0f, // top right
         x - 0.025f,               y - size - 0.025f,    0.0f,       1.0f, 0.0f, // bottom right
@@ -254,7 +255,7 @@ void GameObject::draw() {
 		VBO = &Game::goalVBO;
     }
 
-    const vector<unsigned int> indices = {
+    const std::vector<unsigned int> indices = {
 		0, 1, 3, // first triangle
 		1, 2, 3  // second triangle
 	};
@@ -268,8 +269,8 @@ void GameObject::draw() {
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
-void Maze::toVertices(vector<float>* vertices) {
-	vertices->clear();
+void Maze::toVertices(std::vector<float>& vertices) {
+	vertices.clear();
     for (unsigned int i = 0; i < this->height; i++) { // maze->height
         for (unsigned int j = 0; j < this->width; j++) { // maze->width
             Cell* cell = this->getCell(j,i);
@@ -281,33 +282,33 @@ void Maze::toVertices(vector<float>* vertices) {
             // draw top edge
             if (cell->getEdge(0)) {
                 v = { x, y, x + length, y };
-                vertices->insert(vertices->end(), v.begin(), v.end());
+                vertices.insert(vertices.end(), v.begin(), v.end());
             }
             // draw left edge
             if (cell->getEdge(3)) {
                 v = { x, y, x, y - length };
-                vertices->insert(vertices->end(), v.begin(), v.end());
+                vertices.insert(vertices.end(), v.begin(), v.end());
             }
             // draw bottom edge
             if (cell->getEdge(2)) {
                 v = { x, y - space, x + length, y - space };
-                vertices->insert(vertices->end(), v.begin(), v.end());
+                vertices.insert(vertices.end(), v.begin(), v.end());
             }
             // draw right edge
             if (cell->getEdge(1)) {
                 v = { x + space, y, x + space, y - length };
-                vertices->insert(vertices->end(), v.begin(), v.end());
+                vertices.insert(vertices.end(), v.begin(), v.end());
             }
 
         }
     }
 }
 
-int setupGraphics(Maze* _maze) {
+int setupGraphics(Maze& _maze) {
 	if (createWindow() == -1)
 		return -1;
 	loadFont();
-    Game::maze = _maze;
+    Game::maze = &_maze;
 	Goal::texture = Game::peppermintTexture;
 	Character::texture = Game::characterTexture;
 	Enemy::texture = Game::characterTexture;
@@ -319,7 +320,7 @@ inline void drawScore(Character* chr) {
 }
 
 void render() {
-    static vector<float> v;
+    static std::vector<float> v;
     Game::startT = std::chrono::high_resolution_clock::now();
 
     glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
@@ -327,7 +328,7 @@ void render() {
 
     if (!Game::maze->isDoneGenerating()) {
         Game::maze->generateMaze();
-        Game::maze->toVertices(&v);
+        Game::maze->toVertices(v);
     } else {
         for_each(Game::maze->goals.begin(), Game::maze->goals.end(), [&](Goal* goal) {
             if (goal->isVisible())

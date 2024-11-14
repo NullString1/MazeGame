@@ -4,7 +4,7 @@
 #include "character.h"
 #include "enemy.h"
 
-vector<Cell*> stack;
+std::vector<Cell*> stack;
 
 int random(int min, int max) {
 	return rand() % (max - min + 1) + min;
@@ -16,8 +16,8 @@ void Maze::generateMaze() {
 		stack.emplace_back(this->current);
 	}
 
-	vector<Cell*> unvisited;
-	for_each(this->current->neighbours.begin(), this->current->neighbours.end(), [&](Cell* cell) {
+	std::vector<Cell*> unvisited;
+	std::for_each(this->current->neighbours.begin(), this->current->neighbours.end(), [&](Cell* cell) {
 		if (!cell->isVisited()) {
 			unvisited.emplace_back(cell);
 		}
@@ -66,6 +66,32 @@ void Maze::generateMaze() {
 				)
 			)
 		);
+		for (auto cell : this->maze) {
+			cell->neighbours.clear();
+			for (GameObject::Direction d : {GameObject::Direction::UP, GameObject::Direction::DOWN, GameObject::Direction::LEFT, GameObject::Direction::RIGHT}) {
+				if (cell->getEdge(d)) {
+					continue;
+				}
+				switch (d) {
+				case GameObject::Direction::UP:
+					if (cell->getY() != 0)
+						cell->neighbours.emplace_back(this->getCell(cell->getX(), cell->getY() - 1));
+					break;
+				case GameObject::Direction::DOWN:
+					if (cell->getY() != this->getHeight())
+						cell->neighbours.emplace_back(this->getCell(cell->getX(), cell->getY() + 1));
+					break;
+				case GameObject::Direction::LEFT:
+					if (cell->getX() != 0)
+						cell->neighbours.emplace_back(this->getCell(cell->getX() - 1, cell->getY()));
+					break;
+				case GameObject::Direction::RIGHT:
+					if (cell->getX() != this->getWidth())
+						cell->neighbours.emplace_back(this->getCell(cell->getX() + 1, cell->getY()));
+					break;
+				}
+			}
+		}
 	}
 }
 
@@ -96,7 +122,7 @@ unsigned int Cell::getY() {
 Maze::Maze(unsigned int width, unsigned int height, Character* character) {
 	this->width = width;
 	this->height = height;
-	this->maze = vector<Cell*>(this->width * this->height);
+	this->maze = std::vector<Cell*>(this->width * this->height);
 	this->player = character;
 
 	for (unsigned int i = 0; i < this->width; i++) {

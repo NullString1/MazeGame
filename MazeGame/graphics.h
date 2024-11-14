@@ -11,11 +11,11 @@
 #include "enemy.h"
 
 int createWindow();
-int setupGraphics(Maze* _maze);
+int setupGraphics(Maze& _maze);
 void render();
 void setupVAOVBO();
 float* hexColour2Float(int hexColour);
-void drawLines(std::vector<float> lv, unsigned int colour, bool doBuffer);
+void drawLines(std::vector<float>& lv, unsigned int colour, bool doBuffer);
 void error_callback(int error, const char* description);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);

@@ -1,7 +1,6 @@
 #pragma once
 #include <vector>
 #include <algorithm>
-using namespace std;
 
 class Character; // forward declaration
 class Goal; // forward declaration
@@ -10,7 +9,7 @@ class Enemy; // forward declaration
 class Cell {
 public:
 	bool walls[4] = { true, true, true, true }; // top right bottom left
-	vector<Cell*> neighbours;
+	std::vector<Cell*> neighbours;
 
 	Cell(unsigned int x, unsigned int y);
 
@@ -18,6 +17,9 @@ public:
 	bool isVisited();
 	bool setVisited(bool v);
 	unsigned int getX(), getY(), setX(unsigned int x), setY(unsigned int y);
+	bool operator==(const Cell& other) const {
+		return this->x == other.x && this->y == other.y;
+	}
 
 private:
 	unsigned int x, y;
@@ -26,16 +28,16 @@ private:
 
 class Maze {
 public:
-	Cell* current, *startPoint, *endPoint;
+	Cell *current, *startPoint, *endPoint;
 	Character* player;
-	vector<Goal*> goals;
-	vector<Enemy*> enemies;
+	std::vector<Goal*> goals;
+	std::vector<Enemy*> enemies;
 
 	Maze(unsigned int width, unsigned int height, Character* character);
 
 	Cell* getCell(unsigned int x, unsigned int y);
 	void generateMaze();
-	void toVertices(vector<float>* vertices);
+	void toVertices(std::vector<float>& vertices);
 	unsigned int getWidth(), getHeight();
 	bool isDoneGenerating();
 
@@ -43,5 +45,5 @@ public:
 private:
 	unsigned int width, height;
 	bool doneGenerating = false;
-	vector<Cell*> maze;
+	std::vector<Cell*> maze;
 };
