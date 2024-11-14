@@ -18,6 +18,7 @@ public:
 	virtual void setX(unsigned int x);
 	virtual void setY(unsigned int y);
 	virtual void setMaze(Maze* _maze);
+	virtual Maze* getMaze();
 	virtual unsigned int getX();
 	virtual unsigned int getY();
 	virtual float getSize();

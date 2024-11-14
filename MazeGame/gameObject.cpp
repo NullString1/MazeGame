@@ -1,4 +1,5 @@
 #include "gameObject.h"
+#include "graphics.h"
 
 unsigned int GameObject::getX() {
 	return *this->pos[0];
@@ -28,8 +29,11 @@ GameObject::GameObject(Cell* cell) {
 }
 GameObject::GameObject() {
 }
+Maze* GameObject::getMaze() {
+	return this->maze;
+}
 unsigned int** GameObject::move(Direction direction) {
-	Cell* currentCell = this->maze->getCell(*this->pos[0], *this->pos[1]);
+	Cell* currentCell = Game::maze->getCell(*this->pos[0], *this->pos[1]);
 	if (!currentCell->getEdge(direction)) {
 		switch (direction) {
 		case UP:
