@@ -2,14 +2,15 @@
 #include "glad/glad.h"
 #include "gameObject.h"
 
-class Character: public GameObject {
+class Character final : public GameObject {
 public:
-	unsigned int getScore();
+	unsigned int getScore() const;
 	void setScore(unsigned int score);
 	void incrementScore();
 	void decrementScore();
-	GLuint getTexture();
-	inline static GLuint texture;
+	GLuint getTexture(unsigned int a);
+	GLuint getTexture() override;
+	inline static GLuint texture, texture2;
 	using GameObject::GameObject;
 private:
 	unsigned int score = 0;

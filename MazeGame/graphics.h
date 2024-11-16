@@ -15,22 +15,24 @@ int setupGraphics(Maze& _maze);
 void render();
 void setupVAOVBO();
 float* hexColour2Float(int hexColour);
-void drawLines(std::vector<float>& lv, unsigned int colour, bool doBuffer);
+void drawLines(const std::vector<float>& lv, unsigned int colour, bool doBuffer);
 void error_callback(int error, const char* description);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
 GLuint loadDDSTexture(const char* path);
 void close();
+void loadShaders();
+void loadTextures();
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 class Game {
 public:
     inline static GLFWwindow* window;
-    inline static GLuint characterTexture, peppermintTexture, mazeVAO, charVAO, mazeVBO, charVBO, goalVBO, goalVAO, EBO;
+    inline static GLuint characterTexture, characterTexture2, peppermintTexture, mazeVAO, charVAO, mazeVBO, charVBO, goalVBO, goalVAO, EBO;
     inline static Shader* lineShader, * characterShader, * goalShader, * textShader;
-    inline static std::chrono::steady_clock::time_point startT, endT;
+    inline static std::chrono::steady_clock::time_point fps_start_t, fps_end_t, gameTimer;
     inline static Maze* maze;
-    inline const static int lineWidth = 10;
+    inline static constexpr int lineWidth = 10;
 };
 
 inline bool shouldClose() {

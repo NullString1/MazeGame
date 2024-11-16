@@ -1,9 +1,10 @@
 #include "character.h"
 
-unsigned int Character::getScore() {
+unsigned int Character::getScore() const
+{
 	return this->score;
 }
-void Character::setScore(unsigned int score) {
+void Character::setScore(const unsigned int score) {
 	this->score = score;
 }
 void Character::incrementScore() {
@@ -13,6 +14,10 @@ void Character::decrementScore() {
 	if (score > 0)
 		this->score--;
 }
+GLuint Character::getTexture(unsigned int a) {
+	return a==0 ? Character::texture:Character::texture2;
+};
+
 GLuint Character::getTexture() {
-	return this->texture;
+	return Character::texture;
 };

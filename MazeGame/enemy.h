@@ -5,11 +5,11 @@
 #include "gameObject.h"
 
 
-class Enemy : public GameObject
+class Enemy final : public GameObject
 {
 public:
 	void tick();
-	GLuint getTexture();
+	GLuint getTexture() override;
 	inline static GLuint texture;
 	using GameObject::GameObject;
 	std::queue<GameObject::Direction> moves;

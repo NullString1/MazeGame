@@ -40,7 +40,7 @@ public:
         }
         catch (std::ifstream::failure& e)
         {
-            std::cout << "ERROR::SHADER::UNABLE TO READ FILE " << e.what() << std::endl;
+            std::cout << "ERROR::SHADER::UNABLE TO READ FILE " << e.what() << '\n';
         }
         const char* vShaderCode = vertexCode.c_str();
         const char* fShaderCode = fragmentCode.c_str();
@@ -48,12 +48,12 @@ public:
         unsigned int vertex, fragment;
 
         vertex = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vertex, 1, &vShaderCode, NULL);
+        glShaderSource(vertex, 1, &vShaderCode, nullptr);
         glCompileShader(vertex);
         checkCompileErrors(vertex, "VERTEX");
 
         fragment = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fragment, 1, &fShaderCode, NULL);
+        glShaderSource(fragment, 1, &fShaderCode, nullptr);
         glCompileShader(fragment);
         checkCompileErrors(fragment, "FRAGMENT");
 
@@ -68,30 +68,30 @@ public:
     }
 	// Activate the shader program
     // ------------------------------------------------------------------------
-    void use()
+    void use() const
     {
         glUseProgram(ID);
     }
     // Set singular uniform bool
     // ------------------------------------------------------------------------
-    void setBool(const std::string& name, bool value) const
+    void setBool(const std::string& name, const bool value) const
     {
-        glUniform1i(glGetUniformLocation(ID, name.c_str()), (int)value);
+        glUniform1i(glGetUniformLocation(ID, name.c_str()), static_cast<int>(value));
     }
 	// Set singular uniform int
     // ------------------------------------------------------------------------
-    void setInt(const std::string& name, int value) const
+    void setInt(const std::string& name, const int value) const
     {
         glUniform1i(glGetUniformLocation(ID, name.c_str()), value);
     }
 	// Set singular uniform float
     // ------------------------------------------------------------------------
-    void setFloat(const std::string& name, float value) const
+    void setFloat(const std::string& name, const float value) const
     {
         glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
     }
 	// Set singular uniform float array
-	void setFloat4(const std::string& name, float v1, float v2, float v3, float v4) const
+	void setFloat4(const std::string& name, const float v1, const float v2, const float v3, const float v4) const
 	{
 		glUniform4f(glGetUniformLocation(ID, name.c_str()), v1, v2, v3, v4);
 	}
@@ -110,7 +110,7 @@ public:
 private:
     // Utility function for checking shader compilation/linking errors.
     // ------------------------------------------------------------------------
-    void checkCompileErrors(unsigned int shader, std::string type)
+    static void checkCompileErrors(unsigned int shader, const std::string& type)
     {
         int success;
         char infoLog[1024];
@@ -119,8 +119,9 @@ private:
             glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
             if (!success)
             {
-                glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-                std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+                glGetShaderInfoLog(shader, 1024, nullptr, infoLog);
+                std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " <<
+	                '\n';
             }
         }
         else
@@ -128,8 +129,9 @@ private:
             glGetProgramiv(shader, GL_LINK_STATUS, &success);
             if (!success)
             {
-                glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-                std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+                glGetProgramInfoLog(shader, 1024, nullptr, infoLog);
+                std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " <<
+	                '\n';
             }
         }
     }

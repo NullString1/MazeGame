@@ -20,20 +20,20 @@ float GameObject::getSize() {
 	return 0.1f;
 }
 GameObject::GameObject(unsigned int x, unsigned int y) {
-	this->setX(x);
-	this->setY(y);
+	this->GameObject::setX(x);
+	this->GameObject::setY(y);
 }
 GameObject::GameObject(Cell* cell) {
-	this->setX(cell->getX());
-	this->setY(cell->getY());
+	this->GameObject::setX(cell->getX());
+	this->GameObject::setY(cell->getY());
 }
-GameObject::GameObject() {
-}
+GameObject::GameObject() = default;
+
 Maze* GameObject::getMaze() {
 	return this->maze;
 }
 unsigned int** GameObject::move(Direction direction) {
-	Cell* currentCell = Game::maze->getCell(*this->pos[0], *this->pos[1]);
+	const Cell* currentCell = Game::maze->getCell(*this->pos[0], *this->pos[1]);
 	if (!currentCell->getEdge(direction)) {
 		switch (direction) {
 		case UP:

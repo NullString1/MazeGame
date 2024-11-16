@@ -1,12 +1,14 @@
+#include <algorithm>
 #include <chrono>
 #include "maze.h"
 #include "goal.h"
 #include "character.h"
 #include "enemy.h"
 
-std::vector<Cell*> stack;
+static std::vector<Cell*> stack;
 
-int random(int min, int max) {
+static int random(const int min, const int max)
+{
 	return rand() % (max - min + 1) + min;
 }
 
@@ -17,16 +19,16 @@ void Maze::generateMaze() {
 	}
 
 	std::vector<Cell*> unvisited;
-	std::for_each(this->current->neighbours.begin(), this->current->neighbours.end(), [&](Cell* cell) {
+	std::ranges::for_each(this->current->neighbours.begin(), this->current->neighbours.end() , [&](Cell* cell) {
 		if (!cell->isVisited()) {
 			unvisited.emplace_back(cell);
 		}
 	});
 
-	if (unvisited.size() > 0) {
-		unsigned int index = rand() % unvisited.size();
+	if (!unvisited.empty()) {
+		const unsigned int index = rand() % unvisited.size();
 		Cell* next = unvisited[index];
-		int x = this->current->getX() - next->getX();
+		const int x = static_cast<int>(this->current->getX()) - next->getX();
 		if (x == 1) {
 			this->current->walls[3] = false;
 			next->walls[1] = false;
@@ -36,7 +38,7 @@ void Maze::generateMaze() {
 			next->walls[3] = false;
 		}
 
-		int y = this->current->getY() - next->getY();
+		const int y = this->current->getY() - next->getY();
 		if (y == 1) {
 			this->current->walls[0] = false;
 			next->walls[2] = false;
@@ -48,7 +50,7 @@ void Maze::generateMaze() {
 
 		this->current = next;
 	}
-	else if (stack.size() > 0) {
+	else if (!stack.empty()) {
 		this->current = stack.back();
 		stack.pop_back();
 	}
@@ -66,9 +68,9 @@ void Maze::generateMaze() {
 				)
 			)
 		);
-		for (auto cell : this->maze) {
+		for (const auto cell : this->maze) {
 			cell->neighbours.clear();
-			for (GameObject::Direction d : {GameObject::Direction::UP, GameObject::Direction::DOWN, GameObject::Direction::LEFT, GameObject::Direction::RIGHT}) {
+			for (const GameObject::Direction d : {GameObject::Direction::UP, GameObject::Direction::DOWN, GameObject::Direction::LEFT, GameObject::Direction::RIGHT}) {
 				if (cell->getEdge(d)) {
 					continue;
 				}
@@ -99,11 +101,13 @@ Cell::Cell(unsigned int x, unsigned int y) {
 	this->x = x;
 	this->y = y;
 }
-Cell* Maze::getCell(unsigned int x, unsigned int y) {
+Cell* Maze::getCell(unsigned int x, unsigned int y) const
+{
 	return this->maze[x * this->width + y];
 }
 
-bool Cell::isVisited() {
+bool Cell::isVisited() const
+{
 	return this->visited;
 }
 
@@ -119,7 +123,7 @@ unsigned int Cell::getY() {
 	return this->y;
 }
 
-Maze::Maze(unsigned int width, unsigned int height, Character* character) {
+Maze::Maze(const unsigned int width, const unsigned int height, Character* character) {
 	this->width = width;
 	this->height = height;
 	this->maze = std::vector<Cell*>(this->width * this->height);
@@ -148,7 +152,8 @@ Maze::Maze(unsigned int width, unsigned int height, Character* character) {
 	}
 	this->current = this->getCell(0, 0);
 }
-bool Cell::getEdge(unsigned int edge) {
+bool Cell::getEdge(unsigned int edge) const
+{
 	return this->walls[edge];
 }
 
@@ -168,6 +173,7 @@ unsigned int Cell::setY(unsigned int y) {
 	return this->y = y;
 }
 
-bool Maze::isDoneGenerating() {
+bool Maze::isDoneGenerating() const
+{
 	return this->doneGenerating;
 }

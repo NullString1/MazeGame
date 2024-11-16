@@ -7,9 +7,9 @@ class Cell; // forward declaration
 class Goal: public GameObject {
 public:
 	void setVisible(bool visible);
-	bool isVisible();
-	GLuint getTexture();
-	float getSize();
+	bool isVisible() const;
+	GLuint getTexture() override;
+	float getSize() override;
 	inline static GLuint texture;
 	using GameObject::GameObject;
 private:

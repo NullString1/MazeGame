@@ -1,9 +1,10 @@
 #include "goal.h"
 
-void Goal::setVisible(bool visible) {
+void Goal::setVisible(const bool visible) {
 	this->visible = visible;
 }
-bool Goal::isVisible() {
+bool Goal::isVisible() const
+{
 	return this->visible;
 }
 GLuint Goal::getTexture() {

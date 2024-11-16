@@ -7,6 +7,8 @@ class Maze; // Forward declaration
 class GameObject
 {
 public:
+	virtual ~GameObject() = default;
+
 	enum Direction {
 		UP = 0,
 		RIGHT = 1,
@@ -24,7 +26,7 @@ public:
 	virtual float getSize();
 	virtual GLuint getTexture() = 0;
 	GameObject(unsigned int x, unsigned int y);
-	GameObject(Cell* cell);
+	explicit GameObject(Cell* cell);
 	GameObject();
 	GLuint texture;
 private:

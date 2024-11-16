@@ -4,11 +4,11 @@
 
 void Enemy::tick() {
 	if (this->ticksSinceLastPF > (5*this->minTicksSinceLastMove) || this->moves.empty()) {
-		unsigned int target[2] = { Game::maze->player->getX(), Game::maze->player->getY()};
+		const unsigned int target[2] = { Game::maze->player->getX(), Game::maze->player->getY()};
 		std::stack<CoordPair> path = findPathBFS(Game::maze->getCell(this->getX(), this->getY()), Game::maze->getCell(target[0], target[1]));
 		CoordPair previous = CoordPair(this->getX(), this->getY());
 		for (unsigned int i = 0; i<path.size(); i++) {
-			CoordPair cell = path.top();
+			const CoordPair cell = path.top();
 			path.pop();
 			if (cell.first > previous.first) {
 				this->moves.emplace(GameObject::Direction::RIGHT);
@@ -26,7 +26,7 @@ void Enemy::tick() {
 		}
 		this->ticksSinceLastPF = 0;
 	}
-	if (this->moves.size() > 0 && this->ticksSinceLastMove > this->minTicksSinceLastMove) {
+	if (!this->moves.empty() && this->ticksSinceLastMove > this->minTicksSinceLastMove) {
 		this->move(this->moves.front());
 		this->moves.pop();
 		this->ticksSinceLastMove = 0;
@@ -40,7 +40,7 @@ std::stack<CoordPair> findPathBFS(Cell* startCell, Cell* goalCell) {
 	std::map<CoordPair, CoordPair> cameFrom;
 
 	CoordPair start = CoordPair(startCell->getX(), startCell->getY());
-	CoordPair goal = CoordPair(goalCell->getX(), goalCell->getY());
+	const CoordPair goal = CoordPair(goalCell->getX(), goalCell->getY());
 
 	queue.push(start);
 	cameFrom.emplace(start, CoordPair(MAXDWORD, MAXDWORD));
@@ -53,7 +53,7 @@ std::stack<CoordPair> findPathBFS(Cell* startCell, Cell* goalCell) {
 		}
 		for (Cell* neighbour : Game::maze->getCell(current.first, current.second)->neighbours) {
 			CoordPair n = CoordPair(neighbour->getX(), neighbour->getY());
-			if (cameFrom.count(n) == 0) {
+			if (!cameFrom.contains(n)) {
 				queue.push(n);
 				cameFrom.emplace(n, current);
 			}
@@ -61,7 +61,7 @@ std::stack<CoordPair> findPathBFS(Cell* startCell, Cell* goalCell) {
 	}
 	std::stack<CoordPair> path;
 	CoordPair end = goal;
-	if (cameFrom.count(end) == 0) {
+	if (!cameFrom.contains(end)) {
 		return path;
 	}
 	while (end != CoordPair(MAXDWORD, MAXDWORD)) {
