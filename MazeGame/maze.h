@@ -1,6 +1,5 @@
 #pragma once
 #include <vector>
-#include <algorithm>
 
 class Character; // forward declaration
 class Goal; // forward declaration

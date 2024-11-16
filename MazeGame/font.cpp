@@ -4,7 +4,7 @@
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "stb_truetype.h"
 #include "shader.h"
-#include <stdio.h>
+#include <cstdio>
 #include <vector>
 #include "font.h"
 

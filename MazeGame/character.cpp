@@ -4,8 +4,8 @@ unsigned int Character::getScore() const
 {
 	return this->score;
 }
-void Character::setScore(const unsigned int score) {
-	this->score = score;
+void Character::setScore(const unsigned int score_) {
+	this->score = score_;
 }
 void Character::incrementScore() {
 	this->score++;

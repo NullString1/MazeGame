@@ -1,9 +1,8 @@
 #define NOMINMAX
 #include <typeinfo>
+#include <format>
 #include "graphics.h"
 #include "font.h"
-#include "time.h"
-#include <format>
 
 int createWindow() { // https://learnopengl.com/Getting-started/Hello-Window
     if (!glfwInit()) {
@@ -216,12 +215,12 @@ GLuint loadDDSTexture(const char* path) {
 	return textureID;
 }
 
-inline static void normaliseCoords(const unsigned int x, const unsigned int y, float& _x, float& _y) {
+static void normaliseCoords(const unsigned int x, const unsigned int y, float& _x, float& _y) {
 	_x = -0.9f + x * 0.1f + 0.2f;
 	_y = 0.9f - y * 0.1f;
 }
 
-inline static float* normaliseCoords(const unsigned int x, const unsigned int y) {
+static float* normaliseCoords(const unsigned int x, const unsigned int y) {
 	static float out[2];
 	out[0] = -0.9f + x * 0.1f + 0.2f;
 	out[1] = 0.9f - y * 0.1f;
@@ -331,7 +330,7 @@ int setupGraphics(Maze& _maze) {
     return 0;
 }
 
-inline static void drawScore(const Character* chr) {
+static void drawScore(const Character* chr) {
 	drawText(std::format("Score: {}", chr->getScore()).c_str(), 20.0f, 40.0f, 1.0f, Game::textShader);
 }
 
