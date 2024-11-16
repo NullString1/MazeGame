@@ -23,16 +23,16 @@ int gameLoop(Maze& maze, Character& character) {
 			if (character.getX() == enemy->getX() && character.getY() == enemy->getY()) {
 				if (character.getCollectedPeppermints() == 0)
 				{
+					character.decrementScore();
 					character.setX(0);
 					character.setY(0);
 				}
 				else
 				{
+					character.decrementCollectedPeppermints();
 					enemy->setX(rand() % maze.getWidth());
 					enemy->setY(rand() % maze.getHeight());
 				}
-				character.decrementScore();
-				character.decrementCollectedPeppermints();
 			}
 			enemy->tick();
 		}

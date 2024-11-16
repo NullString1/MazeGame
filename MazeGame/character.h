@@ -25,5 +25,5 @@ public:
 	using Entity::Entity::draw;
 private:
 	unsigned int score = 0;
-	unsigned int collectedPeppermints = 1;
+	unsigned int collectedPeppermints = 0;
 };

@@ -445,11 +445,9 @@ void render() {
 	drawTimer(Game::gameTimer);
     drawItems(Game::maze->player);
 
-	if (Game::gameOver) {
+	if (Game::gameOver) 
 		drawText("Game Over", 150.0f, 250.0f, 2.0f, Game::textShader);
-	}
-
-
+	
 	processInput(Game::window);
     glfwSwapBuffers(Game::window);
     glfwPollEvents();
