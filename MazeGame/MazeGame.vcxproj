@@ -141,6 +141,7 @@
   <ItemGroup>
     <ClCompile Include="character.cpp" />
     <ClCompile Include="enemy.cpp" />
+    <ClCompile Include="entity.h" />
     <ClCompile Include="font.cpp" />
     <ClCompile Include="gameObject.cpp" />
     <ClCompile Include="glad.c" />
@@ -156,6 +157,7 @@
     <ClInclude Include="gameObject.h" />
     <ClInclude Include="goal.h" />
     <ClInclude Include="graphics.h" />
+    <ClInclude Include="item.h" />
     <ClInclude Include="maze.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="stb_truetype.h" />
@@ -163,6 +165,8 @@
   <ItemGroup>
     <None Include="goalFrag.glsl" />
     <None Include="goalVertex.glsl" />
+    <None Include="itemFrag.glsl" />
+    <None Include="itemVertex.glsl" />
     <None Include="lineFrag.glsl" />
     <None Include="lineVertex.glsl" />
     <None Include="characterFrag.glsl" />

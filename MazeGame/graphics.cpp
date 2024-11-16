@@ -50,6 +50,7 @@ void loadShaders()
     Game::characterShader = new Shader("characterVertex.glsl", "characterFrag.glsl");
     Game::goalShader = new Shader("goalVertex.glsl", "goalFrag.glsl");
     Game::textShader = new Shader("textVertex.glsl", "textFrag.glsl");
+	Game::itemShader = new Shader("itemVertex.glsl", "itemFrag.glsl");
 }
 
 void loadTextures() {
@@ -62,10 +63,12 @@ void setupVAOVBO() {
     glGenVertexArrays(1, &Game::mazeVAO);
 	glGenVertexArrays(1, &Game::charVAO);
 	glGenVertexArrays(1, &Game::goalVAO);
+    glGenVertexArrays(1, &Game::itemVAO);
 
     glGenBuffers(1, &Game::mazeVBO);
 	glGenBuffers(1, &Game::charVBO);
 	glGenBuffers(1, &Game::goalVBO);
+	glGenBuffers(1, &Game::itemVBO);
 	glGenBuffers(1, &Game::EBO);
 
     glBindVertexArray(Game::mazeVAO);
@@ -86,6 +89,14 @@ void setupVAOVBO() {
 	glBindBuffer(GL_ARRAY_BUFFER, Game::goalVBO);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), nullptr);   // Position attribute = 0, 2 floats, no normalisation, 
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));     // Texture coords attribute = 0, 2 floats, no normalisation, 
+
+	glEnableVertexAttribArray(0); // Enable vertex attribute
+	glEnableVertexAttribArray(1); // Enable texture attribute
+
+	glBindVertexArray(Game::itemVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, Game::itemVBO);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), nullptr);   // Position attribute = 0, 2 floats, no normalisation, 
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));     // Texture coords attribute = 0, 2 floats, no normalisation,
 
 	glEnableVertexAttribArray(0); // Enable vertex attribute
 	glEnableVertexAttribArray(1); // Enable texture attribute
@@ -215,12 +226,12 @@ GLuint loadDDSTexture(const char* path) {
 	return textureID;
 }
 
-static void normaliseCoords(const unsigned int x, const unsigned int y, float& _x, float& _y) {
+static void normaliseGraphCoords(const unsigned int x, const unsigned int y, float& _x, float& _y) {
 	_x = -0.9f + x * 0.1f + 0.2f;
 	_y = 0.9f - y * 0.1f;
 }
 
-static float* normaliseCoords(const unsigned int x, const unsigned int y) {
+static float* normaliseGraphCoords(const unsigned int x, const unsigned int y) {
 	static float out[2];
 	out[0] = -0.9f + x * 0.1f + 0.2f;
 	out[1] = 0.9f - y * 0.1f;
@@ -229,57 +240,114 @@ static float* normaliseCoords(const unsigned int x, const unsigned int y) {
 
 void GameObject::draw() {
     float x, y;
-    normaliseCoords(this->x, this->y, x, y);
-	const bool isGoal = dynamic_cast<Goal*>(this) != nullptr;
-	GLuint *VAO, *VBO;
+    normaliseGraphCoords(this->x, this->y, x, y);
     std::vector<float> vertices;
 	vertices.reserve(20);
 
+    const float size = this->getSize();
+
+    glBindVertexArray(Game::goalVAO);
+
     glActiveTexture(GL_TEXTURE0);
-    
+    glBindTexture(GL_TEXTURE_2D, this->getTexture());
+	Game::goalShader->use();
+	Game::goalShader->setInt("texture1", 0);
+    vertices = {
+    x - 0.025f,               y - 0.025f,           0.0f,       1.0f, 1.0f, // top right
+    x - 0.025f,               y - size - 0.025f,    0.0f,       1.0f, 0.0f, // bottom right
+    x - size - 0.025f,        y - size - 0.025f,    0.0f,       0.0f, 0.0f, // bottom left
+    x - size - 0.025f,        y - 0.025f,           0.0f,       0.0f, 1.0f, // top left
 
-	const float size = this->getSize();
-    if (!isGoal) {
-		glBindTexture(GL_TEXTURE_2D, dynamic_cast<Character*>(this)->getTexture(rand() %2));
-        Game::characterShader->use();
-        Game::characterShader->setInt("texture1", 0);
-        vertices = {
-            x,          y,            0.0f,       1.0f,   1.0f, // top right
-            x,          y - size,     0.0f,       1.0f,   0.0f, // bottom right
-            x - size,   y - size,     0.0f,       0.0f,   0.0f, // bottom left
-            x - size,   y,            0.0f,       0.0f,   1.0f, // top left
-
-        };
-		VAO = &Game::charVAO;
-		VBO = &Game::charVBO;
-    }
-    else {
-        glBindTexture(GL_TEXTURE_2D, this->getTexture());
-		Game::goalShader->use();
-		Game::goalShader->setInt("texture1", 0);
-        vertices = {
-        x - 0.025f,               y - 0.025f,           0.0f,       1.0f, 1.0f, // top right
-        x - 0.025f,               y - size - 0.025f,    0.0f,       1.0f, 0.0f, // bottom right
-        x - size - 0.025f,        y - size - 0.025f,    0.0f,       0.0f, 0.0f, // bottom left
-        x - size - 0.025f,        y - 0.025f,           0.0f,       0.0f, 1.0f, // top left
-
-        };
-		VAO = &Game::goalVAO;
-		VBO = &Game::goalVBO;
-    }
+    };
 
     const std::vector<unsigned int> indices = {
-		0, 1, 3, // first triangle
-		1, 2, 3  // second triangle
-	};
+        0, 1, 3, // first triangle
+        1, 2, 3  // second triangle
+    };
 
-	glBindVertexArray(*VAO);
-	glBindBuffer(GL_ARRAY_BUFFER, *VBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Game::EBO);
+    glBindBuffer(GL_ARRAY_BUFFER, Game::goalVBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Game::EBO);
 
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), indices.data(), GL_STATIC_DRAW);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float)*vertices.size(), vertices.data(), GL_STATIC_DRAW);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), indices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+}
+
+void Entity::draw() {
+    float x, y;
+    normaliseGraphCoords(this->getX(), this->getY(), x, y);
+    std::vector<float> vertices;
+    vertices.reserve(20);
+
+    const float size = this->getSize();
+
+    glActiveTexture(GL_TEXTURE0);
+
+    Character* chr = dynamic_cast<Character*>(this);
+	if (chr != nullptr)
+		glBindTexture(GL_TEXTURE_2D, chr->getTexture(rand() % 2));
+    else
+		glBindTexture(GL_TEXTURE_2D, this->getTexture());
+
+    Game::characterShader->use();
+    Game::characterShader->setInt("texture1", 0);
+
+    vertices = {
+        x,          y,            0.0f,       1.0f,   1.0f, // top right
+        x,          y - size,     0.0f,       1.0f,   0.0f, // bottom right
+        x - size,   y - size,     0.0f,       0.0f,   0.0f, // bottom left
+        x - size,   y,            0.0f,       0.0f,   1.0f, // top left
+
+    };
+
+    const std::vector<unsigned int> indices = {
+        0, 1, 3, // first triangle
+        1, 2, 3  // second triangle
+    };
+
+    glBindVertexArray(Game::charVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, Game::charVBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Game::EBO);
+
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), indices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+}
+
+void Item::draw() {
+	Game::itemShader->use();
+    Game::itemShader->setInt("texture1", 1);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, this->getTexture());
+	glBindVertexArray(Game::itemVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, Game::itemVBO);
+    const glm::mat4 projection = glm::ortho(0.0f, 1000.0f, 0.0f, 1000.0f, -1.0f, 1.0f);
+    Game::itemShader->setMat4("projection", projection);
+
+    float x = this->getX();
+	float y = 1000.0f - 20.0f;
+	constexpr float size = 25.0f;
+
+    std::vector<float> vertices = {
+        x,          y,            0.0f,       1.0f,   1.0f, // top right
+        x,          y - size,     0.0f,       1.0f,   0.0f, // bottom right
+        x - size,   y - size,     0.0f,       0.0f,   0.0f, // bottom left
+        x - size,   y,            0.0f,       0.0f,   1.0f, // top left
+
+    };
+
+    const std::vector<unsigned int> indices = {
+        0, 1, 3, // first triangle
+        1, 2, 3  // second triangle
+    };
+
+    glBindVertexArray(Game::itemVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, Game::itemVBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Game::EBO);
+
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), indices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 }
 
 void Maze::toVertices(std::vector<float>& vertices) const
@@ -342,6 +410,16 @@ static void drawTimer(std::chrono::steady_clock::time_point& t) {
     drawText(std::format("Time: {}m {}s", minutes, seconds).c_str(), 140.0f, 40.0f, 1.0f, Game::textShader);
 }
 
+static void drawItems(const Character* chr) {
+	drawText("Items:", 320.0f, 40.0f, 1.0f, Game::textShader);
+    for (unsigned int i = 0; i < chr->getCollectedPeppermints(); i++) {
+		Item item;
+        item.setTexture(Goal::texture);
+		item.setX(430.0f + i * 25.0f);
+		item.draw();
+    }
+}
+
 void render() {
     static std::vector<float> v;
 
@@ -365,6 +443,7 @@ void render() {
     Game::maze->player->draw();
     drawScore(Game::maze->player);
 	drawTimer(Game::gameTimer);
+    drawItems(Game::maze->player);
 
 
 	processInput(Game::window);

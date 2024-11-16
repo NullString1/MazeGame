@@ -13,14 +13,24 @@ int gameLoop(Maze& maze, Character& character) {
 		std::ranges::for_each(maze.goals, [&](Goal* goal) {
 			if (goal->isVisible() && character.getX() == goal->getX() && character.getY() == goal->getY()) {
 				character.incrementScore();
+				character.incrementCollectedPeppermints();
 				goal->setVisible(false);
 			}
 		});
 		for (Enemy* enemy : maze.enemies) {
 			if (character.getX() == enemy->getX() && character.getY() == enemy->getY()) {
+				if (character.getCollectedPeppermints() == 0)
+				{
+					character.setX(0);
+					character.setY(0);
+				}
+				else
+				{
+					enemy->setX(rand() % maze.getWidth());
+					enemy->setY(rand() % maze.getHeight());
+				}
 				character.decrementScore();
-				character.setX(0);
-				character.setY(0);
+				character.decrementCollectedPeppermints();
 			}
 			enemy->tick();
 		}

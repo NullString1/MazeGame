@@ -14,6 +14,20 @@ void Character::decrementScore() {
 	if (score > 0)
 		this->score--;
 }
+
+unsigned int Character::getCollectedPeppermints() const {
+	return this->collectedPeppermints;
+}
+
+void Character::incrementCollectedPeppermints() {
+	this->collectedPeppermints++;
+}
+
+void Character::decrementCollectedPeppermints() {
+	if (collectedPeppermints > 0)
+		this->collectedPeppermints--;
+}
+
 GLuint Character::getTexture(unsigned int a) {
 	return a==0 ? Character::texture:Character::texture2;
 };

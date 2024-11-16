@@ -2,11 +2,12 @@
 #include <glad/glad.h>
 #include <queue>
 #include <stack>
+
+#include "entity.h"
 #include "gameObject.h"
 
 
-class Enemy final : public GameObject
-{
+class Enemy final : virtual public GameObject, public Entity {
 public:
 	void tick();
 	GLuint getTexture() override;
@@ -16,6 +17,7 @@ public:
 	unsigned int ticksSinceLastPF = 0;
 	unsigned int ticksSinceLastMove = 0;
 	const unsigned int minTicksSinceLastMove = 20;
+	using Entity::Entity::draw;
 };
 
 typedef std::pair<unsigned int, unsigned int> CoordPair;

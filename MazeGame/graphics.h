@@ -9,6 +9,7 @@
 #include "goal.h"
 #include "character.h"
 #include "enemy.h"
+#include "item.h"
 
 int createWindow();
 int setupGraphics(Maze& _maze);
@@ -24,12 +25,13 @@ void close();
 void loadShaders();
 void loadTextures();
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
+void drawItems(const Character* chr);
 
 class Game {
 public:
     inline static GLFWwindow* window;
-    inline static GLuint characterTexture, characterTexture2, peppermintTexture, mazeVAO, charVAO, mazeVBO, charVBO, goalVBO, goalVAO, EBO;
-    inline static Shader* lineShader, * characterShader, * goalShader, * textShader;
+    inline static GLuint characterTexture, characterTexture2, peppermintTexture, mazeVAO, charVAO, mazeVBO, charVBO, goalVBO, goalVAO, itemVBO, itemVAO, EBO;
+    inline static Shader* lineShader, * characterShader, * goalShader, * textShader, * itemShader;
     inline static std::chrono::steady_clock::time_point fps_start_t, fps_end_t, gameTimer;
     inline static Maze* maze;
     inline static constexpr int lineWidth = 10;
