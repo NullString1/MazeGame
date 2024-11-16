@@ -2,6 +2,7 @@
 #include "graphics.h"
 #include "character.h"
 #include "maze.h"
+#include "font.h"
 
 int gameLoop(Maze& maze, Character& character) {
 	if (setupGraphics(maze) != 0)
@@ -9,6 +10,7 @@ int gameLoop(Maze& maze, Character& character) {
 
 	while (!shouldClose()) {
 		Game::fps_start_t = std::chrono::high_resolution_clock::now();
+
 		render();
 		std::ranges::for_each(maze.goals, [&](Goal* goal) {
 			if (goal->isVisible() && character.getX() == goal->getX() && character.getY() == goal->getY()) {
@@ -34,6 +36,10 @@ int gameLoop(Maze& maze, Character& character) {
 			}
 			enemy->tick();
 		}
+		if (std::chrono::duration_cast<std::chrono::minutes>(std::chrono::steady_clock::now() - Game::gameTimer).count() >= 5) {
+			Game::gameOver = true;
+		}
+
 		Game::fps_end_t = std::chrono::high_resolution_clock::now();
 		Sleep(static_cast<DWORD>(std::max<long long>(0, 1000 / 60 - std::chrono::duration_cast<std::chrono::milliseconds>(Game::fps_end_t - Game::fps_start_t).count()))); // 60fps = 1000/60 = 16.666ms
 

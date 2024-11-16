@@ -407,15 +407,15 @@ static void drawTimer(std::chrono::steady_clock::time_point& t) {
     auto minutes = time / 60;
 	auto seconds = time % 60;
 
-    drawText(std::format("Time: {}m {}s", minutes, seconds).c_str(), 140.0f, 40.0f, 1.0f, Game::textShader);
+    drawText(std::format("Time: {}m {}s / 5m", minutes, seconds).c_str(), 140.0f, 40.0f, 1.0f, Game::textShader);
 }
 
 static void drawItems(const Character* chr) {
-	drawText("Items:", 320.0f, 40.0f, 1.0f, Game::textShader);
+	drawText("Items:", 385.0f, 40.0f, 1.0f, Game::textShader);
     for (unsigned int i = 0; i < chr->getCollectedPeppermints(); i++) {
 		Item item;
         item.setTexture(Goal::texture);
-		item.setX(430.0f + i * 25.0f);
+		item.setX(495.0f + i * 25.0f);
 		item.draw();
     }
 }
@@ -444,6 +444,10 @@ void render() {
     drawScore(Game::maze->player);
 	drawTimer(Game::gameTimer);
     drawItems(Game::maze->player);
+
+	if (Game::gameOver) {
+		drawText("Game Over", 150.0f, 250.0f, 2.0f, Game::textShader);
+	}
 
 
 	processInput(Game::window);

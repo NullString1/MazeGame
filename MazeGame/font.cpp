@@ -43,6 +43,7 @@ void loadFont() {
 	glBindTexture(GL_TEXTURE_2D, fontTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, 512, 512, 0, GL_RED, GL_UNSIGNED_BYTE, fontBitmap);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	
 	glGenVertexArrays(1, &fontVAO);
 	glBindVertexArray(fontVAO);
@@ -61,36 +62,6 @@ void loadFont() {
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), reinterpret_cast<void*>(6 * sizeof(float)));
 	glEnableVertexAttribArray(2);
 }
-
-//void drawText(const char* text, float x, float y, float scale, Shader* shader) {
-//	shader->use();
-//	shader->setInt("texture", 1);
-//	glActiveTexture(GL_TEXTURE1);
-//	glBindTexture(GL_TEXTURE_2D, fontTexture);
-//	std::vector<float> vertices;
-//	for (int i = 0; text[i]; i++) {
-//		float x0 = cdata[text[i] - 32].x0;
-//		float y0 = cdata[text[i] - 32].y0;
-//		float x1 = cdata[text[i] - 32].x1;
-//		float y1 = cdata[text[i] - 32].y1;
-//		float xoff = cdata[text[i] - 32].xoff2 - cdata[text[i]-32].xoff;
-//		float yoff = cdata[text[i] - 32].yoff2 - cdata[text[i]-32].yoff;
-//		vertices.insert(vertices.end(), { x,		y,		 0.0f,	1.0f, 1.0f, 1.0f,	x0, y0 });
-//		vertices.insert(vertices.end(), { x,		y-yoff,	 0.0f,	1.0f, 1.0f, 1.0f,	x0, y1 });
-//		vertices.insert(vertices.end(), { x-xoff,	y-yoff,	 0.0f,	1.0f, 1.0f, 1.0f,	x1, y1 });
-//		vertices.insert(vertices.end(), { x-xoff,	y,		 0.0f,	1.0f, 1.0f, 1.0f,	x1, y0 });
-//	}
-//	std::vector<unsigned int> indices = {
-//		0, 1, 3, // first triangle
-//		1, 2, 3  // second triangle
-//	};
-//	glBindVertexArray(fontVAO);
-//	glBindBuffer(GL_ARRAY_BUFFER, fontVBO);
-//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, fontEBO);
-//	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
-//	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_DYNAMIC_DRAW);
-//	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-//}
 
 void drawText(const char* text, float x, float y, const float scale, const Shader* shader) {
 	shader->use();

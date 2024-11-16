@@ -35,6 +35,7 @@ public:
     inline static std::chrono::steady_clock::time_point fps_start_t, fps_end_t, gameTimer;
     inline static Maze* maze;
     inline static constexpr int lineWidth = 10;
+    inline static bool gameOver = false;
 };
 
 inline bool shouldClose() {
