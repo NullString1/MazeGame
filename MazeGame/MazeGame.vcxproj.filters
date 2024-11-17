@@ -126,5 +126,8 @@
     <Image Include="peppermint.DDS">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="farquad.DDS">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

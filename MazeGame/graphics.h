@@ -30,7 +30,7 @@ void drawItems(const Character* chr);
 class Game {
 public:
     inline static GLFWwindow* window;
-    inline static GLuint characterTexture, characterTexture2, peppermintTexture, mazeVAO, charVAO, mazeVBO, charVBO, goalVBO, goalVAO, itemVBO, itemVAO, EBO;
+    inline static GLuint characterTexture, characterTexture2, peppermintTexture, enemyTexture, mazeVAO, charVAO, mazeVBO, charVBO, goalVBO, goalVAO, itemVBO, itemVAO, EBO;
     inline static Shader* lineShader, * characterShader, * goalShader, * textShader, * itemShader;
     inline static std::chrono::steady_clock::time_point fps_start_t, fps_end_t, gameTimer;
     inline static Maze* maze;

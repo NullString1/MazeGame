@@ -57,6 +57,8 @@ void loadTextures() {
 	Game::characterTexture = loadDDSTexture(R"(C:\Users\bilbo\source\repos\MazeGame\MazeGame\character1.DDS)");
 	Game::characterTexture2 = loadDDSTexture(R"(C:\Users\bilbo\source\repos\MazeGame\MazeGame\character2.DDS)");
 	Game::peppermintTexture = loadDDSTexture(R"(C:\Users\bilbo\source\repos\MazeGame\MazeGame\peppermint.DDS)");
+	Game::enemyTexture = loadDDSTexture(R"(C:\Users\bilbo\source\repos\MazeGame\MazeGame\farquad.DDS)");
+
 }
 
 void setupVAOVBO() {
@@ -394,7 +396,7 @@ int setupGraphics(Maze& _maze) {
 	Goal::texture = Game::peppermintTexture;
 	Character::texture = Game::characterTexture;
 	Character::texture2 = Game::characterTexture2;
-	Enemy::texture = Game::characterTexture;
+	Enemy::texture = Game::enemyTexture;
     return 0;
 }
 
