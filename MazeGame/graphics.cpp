@@ -58,7 +58,29 @@ void loadTextures() {
 	Game::characterTexture2 = loadDDSTexture(R"(C:\Users\bilbo\source\repos\MazeGame\MazeGame\character2.DDS)");
 	Game::peppermintTexture = loadDDSTexture(R"(C:\Users\bilbo\source\repos\MazeGame\MazeGame\peppermint.DDS)");
 	Game::enemyTexture = loadDDSTexture(R"(C:\Users\bilbo\source\repos\MazeGame\MazeGame\farquad.DDS)");
+	generateLineTexture();
+}
 
+void generateLineTexture() {
+    unsigned char* data = new unsigned char[Game::lineWidth * Game::lineWidth * 4];
+    for (unsigned int i = 0; i < Game::lineWidth * Game::lineWidth * 4; i += 4) {
+        if ((i / 4) % 2 == 0) {
+            data[i] = 255;     // Red
+            data[i + 1] = 0;   // Green
+            data[i + 2] = 0;   // Blue
+        } else {
+            data[i] = 255;     // Red
+            data[i + 1] = 255; // Green
+            data[i + 2] = 255; // Blue
+        }
+        data[i + 3] = 255;     // Alpha
+    }
+
+    glGenTextures(1, &Game::lineTexture);
+    glBindTexture(GL_TEXTURE_1D, Game::lineTexture);
+    glTexImage1D(GL_TEXTURE_1D, 0, GL_RGBA, Game::lineWidth, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	glGenerateMipmap(GL_TEXTURE_1D);
+    delete[] data;
 }
 
 void setupVAOVBO() {
@@ -75,7 +97,7 @@ void setupVAOVBO() {
 
     glBindVertexArray(Game::mazeVAO);
     glBindBuffer(GL_ARRAY_BUFFER, Game::mazeVBO);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), nullptr);   // Position attribute = 0, 2 floats, no normalisation, 
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), nullptr);   // Position attribute = 0, 2 floats, no normalisation
 
     glEnableVertexAttribArray(0); // Enable vertex attribute
 
@@ -153,9 +175,9 @@ float* hexColour2Float(const int hexColour) {
 
 void drawLines(const std::vector<float>& lv, const unsigned int colour, const bool doBuffer) {
     Game::lineShader->use();
-    Game::lineShader->setFloat4("colour", hexColour2Float(colour));
     glBindVertexArray(Game::mazeVAO);
     glBindBuffer(GL_ARRAY_BUFFER, Game::mazeVBO);
+    glBindTexture(GL_TEXTURE_1D, Game::lineTexture);
     if (doBuffer) {
         glBufferData(GL_ARRAY_BUFFER, sizeof(float)*lv.size(), lv.data(), GL_STATIC_DRAW);
     }
