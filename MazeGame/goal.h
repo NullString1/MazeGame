@@ -2,8 +2,6 @@
 #include "glad/glad.h"
 #include "gameObject.h"
 
-class Cell; // forward declaration
-
 class Goal: public GameObject {
 public:
 	void setVisible(bool visible);
@@ -14,4 +12,18 @@ public:
 	using GameObject::GameObject;
 private:
 	bool visible = true;
+};
+
+class Peppermint: public Goal {
+public:
+	GLuint getTexture() override;
+	inline static GLuint texture;
+	using Goal::Goal;
+};
+
+class Lock : public Goal {
+public:
+	GLuint getTexture() override;
+	inline static GLuint texture;
+	using Goal::Goal;
 };

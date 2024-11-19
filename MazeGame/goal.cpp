@@ -13,3 +13,9 @@ GLuint Goal::getTexture() {
 float Goal::getSize() {
 	return 0.05f;
 }
+GLuint Peppermint::getTexture() {
+	return Peppermint::texture;
+}
+GLuint Lock::getTexture() {
+	return Lock::texture;
+}

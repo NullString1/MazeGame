@@ -16,8 +16,6 @@ public:
 	GLuint getTexture() override;
 	inline static GLuint texture, texture2;
 	using GameObject::GameObject;
-	using GameObject::setMaze;
-	using GameObject::getMaze;
 	using GameObject::setX;
 	using GameObject::setY;
 	using GameObject::getX;

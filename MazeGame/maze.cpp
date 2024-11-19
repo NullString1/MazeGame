@@ -12,6 +12,16 @@ static int random(const int min, const int max)
 	return rand() % (max - min + 1) + min;
 }
 
+Cell* Maze::randCell() {
+	return this->getCell(random(0, this->width - 1), random(0, this->height - 1));
+
+}
+
+Cell* Maze::randCell(unsigned int lowLimitX, unsigned int highLimitX, unsigned int lowLimitY, unsigned int highLimitY) {
+	return this->getCell(random(lowLimitX, highLimitX), random(lowLimitY, highLimitY));
+
+}
+
 void Maze::generateMaze() {
 	if (!this->current->isVisited()) {
 		this->current->setVisited(true);
@@ -57,15 +67,15 @@ void Maze::generateMaze() {
 	else {
 		this->doneGenerating = true;
 		this->startPoint = this->getCell(0, 0);
-		this->endPoint = this->getCell(random(static_cast<int>(this->width-this->width*0.2), this->width-1), 
-			random(static_cast<int>(this->height - this->height*0.2), this->height-1));
-		this->goals.emplace_back(new Goal(this->endPoint));
+		this->endPoint = randCell(this->width * 0.4, this->width - 1, this->width * 0.4, this->height-1);
+		this->peppermints.emplace_back(new Peppermint(randCell(this->width * 0.1, this->width-this->width*0.4, this->width * 0.1, this->height-this->height*0.4)));
+		this->locks.emplace_back(new Lock(this->endPoint));
 		this->enemies.emplace_back(
 			new Enemy(
-				this->getCell(
-					random(static_cast<int>(this->width - this->width * 0.5), this->width - 1),
-					random(static_cast<int>(this->height - this->height * 0.5), this->height - 1)
-				)
+                randCell(
+                static_cast<unsigned int>(this->width - this->width * 0.5), this->width - 1,
+                static_cast<unsigned int>(this->height - this->height * 0.5), this->height - 1
+                )
 			)
 		);
 		for (const auto cell : this->maze) {

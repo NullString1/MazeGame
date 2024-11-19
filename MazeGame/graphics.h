@@ -6,10 +6,7 @@
 #include "GLFW/glfw3.h"
 #include "maze.h"
 #include "shader.h"
-#include "goal.h"
 #include "character.h"
-#include "enemy.h"
-#include "item.h"
 
 int createWindow();
 int setupGraphics(Maze& _maze);
@@ -31,7 +28,7 @@ void generateLineTexture();
 class Game {
 public:
     inline static GLFWwindow* window;
-    inline static GLuint characterTexture, characterTexture2, peppermintTexture, enemyTexture, lineTexture, mazeVAO, charVAO, mazeVBO, charVBO, goalVBO, goalVAO, itemVBO, itemVAO, EBO;
+    inline static GLuint characterTexture, characterTexture2, peppermintTexture, enemyTexture, lineTexture, lockTexture, mazeVAO, charVAO, mazeVBO, charVBO, goalVBO, goalVAO, itemVBO, itemVAO, EBO;
     inline static Shader* lineShader, * characterShader, * goalShader, * textShader, * itemShader;
     inline static std::chrono::steady_clock::time_point fps_start_t, fps_end_t, gameTimer;
     inline static Maze* maze;

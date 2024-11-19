@@ -13,9 +13,6 @@ void GameObject::setX(unsigned int x) {
 void GameObject::setY(unsigned int y) {
 	this->y = y;
 }
-void GameObject::setMaze(Maze* _maze) {
-	this->maze = _maze;
-}
 float GameObject::getSize() {
 	return 0.1f;
 }
@@ -29,9 +26,6 @@ GameObject::GameObject(Cell* cell) {
 }
 GameObject::GameObject() = default;
 
-Maze* GameObject::getMaze() {
-	return this->maze;
-}
 unsigned int** GameObject::move(Direction direction) {
 	const Cell* currentCell = Game::maze->getCell(*this->pos[0], *this->pos[1]);
 	if (!currentCell->getEdge(direction)) {

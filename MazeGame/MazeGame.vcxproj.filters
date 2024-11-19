@@ -129,5 +129,8 @@
     <Image Include="farquad.DDS">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="lock.DDS">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

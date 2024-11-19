@@ -178,6 +178,7 @@
     <Image Include="character1.DDS" />
     <Image Include="character2.DDS" />
     <Image Include="farquad.DDS" />
+    <Image Include="lock.DDS" />
     <Image Include="lollipop.DDS" />
     <Image Include="peppermint.DDS" />
   </ItemGroup>

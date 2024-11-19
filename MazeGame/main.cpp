@@ -1,8 +1,10 @@
+#include <algorithm>
 #include <thread>
 #include "graphics.h"
 #include "character.h"
 #include "maze.h"
 #include "font.h"
+#include "enemy.h"
 
 int gameLoop(Maze& maze, Character& character) {
 	if (setupGraphics(maze) != 0)
@@ -12,11 +14,11 @@ int gameLoop(Maze& maze, Character& character) {
 		Game::fps_start_t = std::chrono::high_resolution_clock::now();
 
 		render();
-		std::ranges::for_each(maze.goals, [&](Goal* goal) {
-			if (goal->isVisible() && character.getX() == goal->getX() && character.getY() == goal->getY()) {
+		std::ranges::for_each(maze.peppermints, [&](Peppermint* peppermint) {
+			if (peppermint->isVisible() && character.getX() == peppermint->getX() && character.getY() == peppermint->getY()) {
 				character.incrementScore();
 				character.incrementCollectedPeppermints();
-				goal->setVisible(false);
+				peppermint->setVisible(false);
 			}
 		});
 		for (Enemy* enemy : maze.enemies) {
@@ -54,7 +56,6 @@ int main() {
 	Character character;
 	Maze maze(mazeSize, mazeSize, &character);
 
-	character.setMaze(&maze);
 	Game::gameTimer = std::chrono::steady_clock::now();
 	gameLoop(maze, character);
 

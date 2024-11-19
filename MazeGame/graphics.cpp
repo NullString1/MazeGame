@@ -3,6 +3,9 @@
 #include <format>
 #include "graphics.h"
 #include "font.h"
+#include "goal.h"
+#include "enemy.h"
+#include "item.h"
 
 int createWindow() { // https://learnopengl.com/Getting-started/Hello-Window
     if (!glfwInit()) {
@@ -49,10 +52,11 @@ int setupGraphics(Maze& _maze) {
 		return -1;
 	loadFont();
     Game::maze = &_maze;
-	Goal::texture = Game::peppermintTexture;
+	Peppermint::texture = Game::peppermintTexture;
 	Character::texture = Game::characterTexture;
 	Character::texture2 = Game::characterTexture2;
 	Enemy::texture = Game::enemyTexture;
+	Lock::texture = Game::lockTexture;
     return 0;
 }
 
@@ -129,6 +133,7 @@ void loadTextures() {
 	Game::characterTexture2 = loadDDSTexture(R"(C:\Users\bilbo\source\repos\MazeGame\MazeGame\character2.DDS)");
 	Game::peppermintTexture = loadDDSTexture(R"(C:\Users\bilbo\source\repos\MazeGame\MazeGame\peppermint.DDS)");
 	Game::enemyTexture = loadDDSTexture(R"(C:\Users\bilbo\source\repos\MazeGame\MazeGame\farquad.DDS)");
+	Game::lockTexture = loadDDSTexture(R"(C:\Users\bilbo\source\repos\MazeGame\MazeGame\lock.DDS)");
 	generateLineTexture();
 }
 
@@ -438,7 +443,7 @@ static void drawItems(const Character* chr) {
 	drawText("Items:", 385.0f, 40.0f, 1.0f, Game::textShader);
     for (unsigned int i = 0; i < chr->getCollectedPeppermints(); i++) {
 		Item item;
-        item.setTexture(Goal::texture);
+        item.setTexture(Peppermint::texture);
 		item.setX(495.0f + i * 25.0f);
 		item.draw();
     }
@@ -454,13 +459,16 @@ void render() {
         Game::maze->generateMaze();
         Game::maze->toVertices(v);
     } else {
-        std::ranges::for_each(Game::maze->goals, [&](Goal* goal) {
-            if (goal->isVisible())
-                goal->draw();
+        std::ranges::for_each(Game::maze->peppermints, [&](Peppermint* peppermint) {
+            if (peppermint->isVisible())
+                peppermint->draw();
+		});
+		std::ranges::for_each(Game::maze->locks, [&](Lock* lock) {
+			lock->draw();
 		});
         std::ranges::for_each(Game::maze->enemies, [&](Enemy* enemy) {
             enemy->draw();
-			});
+        });
     }
 
 	drawLines(v, 0xFF0A00FF, !Game::maze->isDoneGenerating());

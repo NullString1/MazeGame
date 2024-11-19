@@ -1,4 +1,5 @@
 #include <map>
+#include "maze.h"
 #include "enemy.h"
 #include "graphics.h"
 

@@ -1,8 +1,10 @@
 #pragma once
 #include <vector>
+#include "goal.h"
 
 class Character; // forward declaration
-class Goal; // forward declaration
+class Peppermint; // forward declaration
+class Lock; // forward declaration
 class Enemy; // forward declaration
 
 class Cell {
@@ -29,12 +31,15 @@ class Maze {
 public:
 	Cell *current, *startPoint, *endPoint;
 	Character* player;
-	std::vector<Goal*> goals;
+	std::vector<Peppermint*> peppermints;
+	std::vector<Lock*> locks;
 	std::vector<Enemy*> enemies;
 
 	Maze(unsigned int width, unsigned int height, Character* character);
 
 	Cell* getCell(unsigned int x, unsigned int y) const;
+	Cell* randCell();
+	Cell* randCell(unsigned int lowLimitX, unsigned int highLimitX, unsigned int lowLimitY, unsigned int highLimitY);
 	void generateMaze();
 	void toVertices(std::vector<float>& vertices) const;
 	unsigned int getWidth(), getHeight();
