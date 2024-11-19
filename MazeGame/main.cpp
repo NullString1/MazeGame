@@ -20,8 +20,8 @@ int gameLoop(Maze& maze, Character& character) {
 				character.incrementCollectedPeppermints();
 				peppermint->setVisible(false);
 			}
-		});
-		for (Enemy* enemy : maze.enemies) {
+			});
+		std::erase_if(maze.enemies, [&](Enemy* enemy) {
 			if (character.getX() == enemy->getX() && character.getY() == enemy->getY()) {
 				if (character.getCollectedPeppermints() == 0)
 				{
@@ -32,12 +32,14 @@ int gameLoop(Maze& maze, Character& character) {
 				else
 				{
 					character.decrementCollectedPeppermints();
-					enemy->setX(rand() % maze.getWidth());
-					enemy->setY(rand() % maze.getHeight());
+					return true;
 				}
 			}
 			enemy->tick();
-		}
+			return false;
+			}
+		);
+		
 		if (std::chrono::duration_cast<std::chrono::minutes>(std::chrono::steady_clock::now() - Game::gameTimer).count() >= 5) {
 			Game::gameOver = true;
 		}

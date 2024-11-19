@@ -47,6 +47,7 @@ public:
 
 
 private:
+	inline static unsigned int genCount = 0;
 	unsigned int width, height;
 	bool doneGenerating = false;
 	std::vector<Cell*> maze;

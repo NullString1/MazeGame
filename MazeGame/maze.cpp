@@ -23,6 +23,7 @@ Cell* Maze::randCell(unsigned int lowLimitX, unsigned int highLimitX, unsigned i
 }
 
 void Maze::generateMaze() {
+	this->genCount++;
 	if (!this->current->isVisited()) {
 		this->current->setVisited(true);
 		stack.emplace_back(this->current);
@@ -67,17 +68,17 @@ void Maze::generateMaze() {
 	else {
 		this->doneGenerating = true;
 		this->startPoint = this->getCell(0, 0);
-		this->endPoint = randCell(this->width * 0.4, this->width - 1, this->width * 0.4, this->height-1);
-		this->peppermints.emplace_back(new Peppermint(randCell(this->width * 0.1, this->width-this->width*0.4, this->width * 0.1, this->height-this->height*0.4)));
-		this->locks.emplace_back(new Lock(this->endPoint));
-		this->enemies.emplace_back(
+		//this->endPoint = randCell(this->width * 0.4, this->width - 1, this->width * 0.4, this->height-1);
+		//this->peppermints.emplace_back(new Peppermint(randCell(this->width * 0.1, this->width-this->width*0.4, this->width * 0.1, this->height-this->height*0.4)));
+		//this->locks.emplace_back(new Lock(this->endPoint));
+		/*this->enemies.emplace_back(
 			new Enemy(
                 randCell(
                 static_cast<unsigned int>(this->width - this->width * 0.5), this->width - 1,
                 static_cast<unsigned int>(this->height - this->height * 0.5), this->height - 1
                 )
 			)
-		);
+		);*/
 		for (const auto cell : this->maze) {
 			cell->neighbours.clear();
 			for (const GameObject::Direction d : {GameObject::Direction::UP, GameObject::Direction::DOWN, GameObject::Direction::LEFT, GameObject::Direction::RIGHT}) {
@@ -104,6 +105,19 @@ void Maze::generateMaze() {
 				}
 			}
 		}
+	}
+	static const unsigned int gens = this->getHeight() * this->getWidth();
+	static const unsigned int peppermintGC = gens * (random(2, 3) / 10.0f);
+	static const unsigned int enemyGC = gens * (random(7, 8) / 10.0f);
+	static const unsigned int endPointGC = gens * (random(9, 10) / 10.0f);
+
+	if (this->peppermints.empty() && genCount == peppermintGC)
+		this->peppermints.emplace_back(new Peppermint(this->current));
+	else if (this->enemies.empty() && genCount == enemyGC)
+		this->enemies.emplace_back(new Enemy(this->current));
+	else if (this->endPoint == nullptr && genCount == endPointGC) {
+		this->endPoint = this->current;
+		this->locks.emplace_back(new Lock(this->endPoint));
 	}
 }
 
