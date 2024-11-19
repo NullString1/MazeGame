@@ -4,11 +4,11 @@
 #include "graphics.h"
 
 void Enemy::tick() {
-	if (this->ticksSinceLastPF > (5*this->minTicksSinceLastMove) || this->moves.empty()) {
-		const unsigned int target[2] = { Game::maze->player->getX(), Game::maze->player->getY()};
+	if (this->ticksSinceLastPF > (5 * this->minTicksSinceLastMove) || this->moves.empty()) {
+		const unsigned int target[2] = { Game::maze->player->getX(), Game::maze->player->getY() };
 		std::stack<CoordPair> path = findPathBFS(Game::maze->getCell(this->getX(), this->getY()), Game::maze->getCell(target[0], target[1]));
 		CoordPair previous = CoordPair(this->getX(), this->getY());
-		for (unsigned int i = 0; i<path.size(); i++) {
+		for (unsigned int i = 0; i < path.size(); i++) {
 			const CoordPair cell = path.top();
 			path.pop();
 			if (cell.first > previous.first) {
@@ -45,7 +45,7 @@ std::stack<CoordPair> findPathBFS(Cell* startCell, Cell* goalCell) {
 
 	queue.push(start);
 	cameFrom.emplace(start, CoordPair(MAXDWORD, MAXDWORD));
-	
+
 	while (!queue.empty()) {
 		CoordPair current = queue.front();
 		queue.pop();

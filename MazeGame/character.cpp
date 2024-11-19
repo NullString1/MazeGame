@@ -29,7 +29,7 @@ void Character::decrementCollectedPeppermints() {
 }
 
 GLuint Character::getTexture(unsigned int a) {
-	return a==0 ? Character::texture:Character::texture2;
+	return a == 0 ? Character::texture : Character::texture2;
 };
 
 GLuint Character::getTexture() {

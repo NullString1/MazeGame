@@ -3,7 +3,7 @@
 #include "gameObject.h"
 #include "entity.h"
 
-class Character final :  virtual public GameObject, public Entity {
+class Character final : virtual public GameObject, public Entity {
 public:
 	unsigned int getScore() const;
 	void setScore(unsigned int score);

@@ -30,11 +30,11 @@ void Maze::generateMaze() {
 	}
 
 	std::vector<Cell*> unvisited;
-	std::ranges::for_each(this->current->neighbours.begin(), this->current->neighbours.end() , [&](Cell* cell) {
+	std::ranges::for_each(this->current->neighbours.begin(), this->current->neighbours.end(), [&](Cell* cell) {
 		if (!cell->isVisited()) {
 			unvisited.emplace_back(cell);
 		}
-	});
+		});
 
 	if (!unvisited.empty()) {
 		const unsigned int index = rand() % unvisited.size();
@@ -73,10 +73,10 @@ void Maze::generateMaze() {
 		//this->locks.emplace_back(new Lock(this->endPoint));
 		/*this->enemies.emplace_back(
 			new Enemy(
-                randCell(
-                static_cast<unsigned int>(this->width - this->width * 0.5), this->width - 1,
-                static_cast<unsigned int>(this->height - this->height * 0.5), this->height - 1
-                )
+				randCell(
+				static_cast<unsigned int>(this->width - this->width * 0.5), this->width - 1,
+				static_cast<unsigned int>(this->height - this->height * 0.5), this->height - 1
+				)
 			)
 		);*/
 		for (const auto cell : this->maze) {

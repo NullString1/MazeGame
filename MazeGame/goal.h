@@ -2,7 +2,7 @@
 #include "glad/glad.h"
 #include "gameObject.h"
 
-class Goal: public GameObject {
+class Goal : public GameObject {
 public:
 	void setVisible(bool visible);
 	bool isVisible() const;
@@ -14,7 +14,7 @@ private:
 	bool visible = true;
 };
 
-class Peppermint: public Goal {
+class Peppermint : public Goal {
 public:
 	GLuint getTexture() override;
 	inline static GLuint texture;

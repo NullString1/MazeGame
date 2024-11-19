@@ -27,45 +27,45 @@ void generateLineTexture();
 
 class Game {
 public:
-    inline static GLFWwindow* window;
-    inline static GLuint characterTexture, characterTexture2, peppermintTexture, enemyTexture, lineTexture, lockTexture, mazeVAO, charVAO, mazeVBO, charVBO, goalVBO, goalVAO, itemVBO, itemVAO, EBO;
-    inline static Shader* lineShader, * characterShader, * goalShader, * textShader, * itemShader;
-    inline static std::chrono::steady_clock::time_point fps_start_t, fps_end_t, gameTimer;
-    inline static Maze* maze;
-    inline static constexpr int lineWidth = 10;
-    inline static bool gameOver = false;
+	inline static GLFWwindow* window;
+	inline static GLuint characterTexture, characterTexture2, peppermintTexture, enemyTexture, lineTexture, lockTexture, mazeVAO, charVAO, mazeVBO, charVBO, goalVBO, goalVAO, itemVBO, itemVAO, EBO;
+	inline static Shader* lineShader, * characterShader, * goalShader, * textShader, * itemShader;
+	inline static std::chrono::steady_clock::time_point fps_start_t, fps_end_t, gameTimer;
+	inline static Maze* maze;
+	inline static constexpr int lineWidth = 10;
+	inline static bool gameOver = false;
 };
 
 inline bool shouldClose() {
-    return glfwWindowShouldClose(Game::window);
+	return glfwWindowShouldClose(Game::window);
 };
 
 struct DDS_PIXELFORMAT {
-    uint32_t dwSize;
-    uint32_t dwFlags;
-    uint32_t dwFourCC;
-    uint32_t dwRGBBitCount;
-    uint32_t dwRBitMask;
-    uint32_t dwGBitMask;
-    uint32_t dwBBitMask;
-    uint32_t dwABitMask;
+	uint32_t dwSize;
+	uint32_t dwFlags;
+	uint32_t dwFourCC;
+	uint32_t dwRGBBitCount;
+	uint32_t dwRBitMask;
+	uint32_t dwGBitMask;
+	uint32_t dwBBitMask;
+	uint32_t dwABitMask;
 };
 
 struct DDS_HEADER {
-    uint32_t           dwSize;
-    uint32_t           dwFlags;
-    uint32_t           dwHeight;
-    uint32_t           dwWidth;
-    uint32_t           dwPitchOrLinearSize;
-    uint32_t           dwDepth;
-    uint32_t           dwMipMapCount;
-    uint32_t           dwReserved1[11];
-    DDS_PIXELFORMAT ddspf;
-    uint32_t           dwCaps;
-    uint32_t           dwCaps2;
-    uint32_t           dwCaps3;
-    uint32_t           dwCaps4;
-    uint32_t           dwReserved2;
+	uint32_t           dwSize;
+	uint32_t           dwFlags;
+	uint32_t           dwHeight;
+	uint32_t           dwWidth;
+	uint32_t           dwPitchOrLinearSize;
+	uint32_t           dwDepth;
+	uint32_t           dwMipMapCount;
+	uint32_t           dwReserved1[11];
+	DDS_PIXELFORMAT ddspf;
+	uint32_t           dwCaps;
+	uint32_t           dwCaps2;
+	uint32_t           dwCaps3;
+	uint32_t           dwCaps4;
+	uint32_t           dwReserved2;
 };
 
 

@@ -29,7 +29,7 @@ private:
 
 class Maze {
 public:
-	Cell *current, *startPoint, *endPoint;
+	Cell* current, * startPoint, * endPoint;
 	Character* player;
 	std::vector<Peppermint*> peppermints;
 	std::vector<Lock*> locks;

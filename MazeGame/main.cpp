@@ -39,7 +39,7 @@ int gameLoop(Maze& maze, Character& character) {
 			return false;
 			}
 		);
-		
+
 		if (std::chrono::duration_cast<std::chrono::minutes>(std::chrono::steady_clock::now() - Game::gameTimer).count() >= 5) {
 			Game::gameOver = true;
 		}
