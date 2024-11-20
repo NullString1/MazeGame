@@ -13,11 +13,13 @@ public:
 	GLuint getTexture() override;
 	inline static GLuint texture;
 	using GameObject::GameObject;
-	std::queue<GameObject::Direction> moves;
+	std::queue<Direction> moves;
 	unsigned int ticksSinceLastPF = 0;
 	unsigned int ticksSinceLastMove = 0;
-	const unsigned int minTicksSinceLastMove = 20;
-	using Entity::Entity::draw;
+	static constexpr unsigned int minTicksSinceLastMove = 20;
+	void draw() override {
+		Entity::draw();
+	}
 };
 
 typedef std::pair<unsigned int, unsigned int> CoordPair;

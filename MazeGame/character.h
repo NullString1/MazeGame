@@ -12,7 +12,7 @@ public:
 	unsigned int getCollectedPeppermints() const;
 	void incrementCollectedPeppermints();
 	void decrementCollectedPeppermints();
-	GLuint getTexture(unsigned int a);
+	static GLuint getTexture(unsigned int a);
 	GLuint getTexture() override;
 	inline static GLuint texture, texture2;
 	using GameObject::GameObject;
@@ -20,7 +20,9 @@ public:
 	using GameObject::setY;
 	using GameObject::getX;
 	using GameObject::getY;
-	using Entity::Entity::draw;
+	void draw() override {
+		Entity::draw();
+	}
 private:
 	unsigned int score = 0;
 	unsigned int collectedPeppermints = 0;

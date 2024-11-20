@@ -6,8 +6,8 @@ public:
 	void draw() override;
 	GLuint getTexture() override {
 		return texture;
-	};
+	}
 	void setTexture(GLuint texture) {
 		this->texture = texture;
-	};
+	}
 };

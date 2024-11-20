@@ -12,18 +12,48 @@ static int random(const int min, const int max)
 	return rand() % (max - min + 1) + min;
 }
 
-Cell* Maze::randCell() {
+static float randomF(const float min, const float max)
+{
+	return static_cast<float>(rand()) / RAND_MAX * (max - min) + min;
+}
+
+Cell* Maze::randCell() const {
 	return this->getCell(random(0, this->width - 1), random(0, this->height - 1));
 
 }
 
-Cell* Maze::randCell(unsigned int lowLimitX, unsigned int highLimitX, unsigned int lowLimitY, unsigned int highLimitY) {
+Cell* Maze::randCell(unsigned int lowLimitX, unsigned int highLimitX, unsigned int lowLimitY, unsigned int highLimitY) const {
 	return this->getCell(random(lowLimitX, highLimitX), random(lowLimitY, highLimitY));
 
 }
 
+void Maze::resetMaze() {
+	delete startPoint;
+	delete endPoint;
+	std::ranges::for_each(peppermints, [](const Peppermint* p) { delete p; });
+	std::ranges::for_each(locks, [](const Lock* l) { delete l; });
+	std::ranges::for_each(enemies, [](const Enemy* e) { delete e; });
+	this->doneGenerating = false;
+	genCount = 0;
+	this->current = this->getCell(0, 0);
+	this->startPoint = nullptr;
+	this->endPoint = nullptr;
+	this->peppermints.clear();
+	this->locks.clear();
+	this->enemies.clear();
+	for (const auto cell : this->maze) {
+		cell->setVisited(false);
+		cell->walls[0] = true;
+		cell->walls[1] = true;
+		cell->walls[2] = true;
+		cell->walls[3] = true;
+	}
+
+}
+
+
 void Maze::generateMaze() {
-	this->genCount++;
+	genCount++;
 	if (!this->current->isVisited()) {
 		this->current->setVisited(true);
 		stack.emplace_back(this->current);
@@ -68,17 +98,6 @@ void Maze::generateMaze() {
 	else {
 		this->doneGenerating = true;
 		this->startPoint = this->getCell(0, 0);
-		//this->endPoint = randCell(this->width * 0.4, this->width - 1, this->width * 0.4, this->height-1);
-		//this->peppermints.emplace_back(new Peppermint(randCell(this->width * 0.1, this->width-this->width*0.4, this->width * 0.1, this->height-this->height*0.4)));
-		//this->locks.emplace_back(new Lock(this->endPoint));
-		/*this->enemies.emplace_back(
-			new Enemy(
-				randCell(
-				static_cast<unsigned int>(this->width - this->width * 0.5), this->width - 1,
-				static_cast<unsigned int>(this->height - this->height * 0.5), this->height - 1
-				)
-			)
-		);*/
 		for (const auto cell : this->maze) {
 			cell->neighbours.clear();
 			for (const GameObject::Direction d : {GameObject::Direction::UP, GameObject::Direction::DOWN, GameObject::Direction::LEFT, GameObject::Direction::RIGHT}) {
@@ -107,9 +126,9 @@ void Maze::generateMaze() {
 		}
 	}
 	static const unsigned int gens = this->getHeight() * this->getWidth();
-	static const unsigned int peppermintGC = gens * (random(2, 3) / 10.0f);
-	static const unsigned int enemyGC = gens * (random(7, 8) / 10.0f);
-	static const unsigned int endPointGC = gens * (random(9, 10) / 10.0f);
+	static const unsigned int peppermintGC = static_cast<unsigned int>(gens * (random(2, 3) / 10.0f));
+	static const unsigned int enemyGC = static_cast<unsigned int>(gens * (random(7, 8) / 10.0f));
+	static const unsigned int endPointGC = static_cast<unsigned int>(gens * (random(9, 10) / 10.0f));
 
 	if (this->peppermints.empty() && genCount == peppermintGC)
 		this->peppermints.emplace_back(new Peppermint(this->current));
@@ -139,11 +158,11 @@ bool Cell::setVisited(bool v) {
 	return this->visited = v;
 }
 
-unsigned int Cell::getX() {
+const unsigned int Cell::getX() {
 	return this->x;
 }
 
-unsigned int Cell::getY() {
+const unsigned int Cell::getY() {
 	return this->y;
 }
 
@@ -181,11 +200,11 @@ bool Cell::getEdge(unsigned int edge) const
 	return this->walls[edge];
 }
 
-unsigned int Maze::getWidth() {
+const unsigned int Maze::getWidth()  {
 	return this->width;
 }
 
-unsigned int Maze::getHeight() {
+const unsigned int Maze::getHeight()  {
 	return this->height;
 }
 

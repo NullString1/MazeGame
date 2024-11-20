@@ -25,6 +25,13 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 void drawItems(const Character* chr);
 void generateLineTexture();
 
+enum questionState: std::uint8_t {
+	SHOWN,
+	ANSWERED,
+	HIDDEN,
+	CORRECT,
+	INCORRECT
+};
 class Game {
 public:
 	inline static GLFWwindow* window;
@@ -34,7 +41,11 @@ public:
 	inline static Maze* maze;
 	inline static constexpr int lineWidth = 10;
 	inline static bool gameOver = false;
+	inline static questionState questionState = HIDDEN;
+	inline static std::string textInput;
+	inline static unsigned int level = 1;
 };
+
 
 inline bool shouldClose() {
 	return glfwWindowShouldClose(Game::window);

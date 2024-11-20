@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 #include "glad/glad.h"
 
 class Cell;
@@ -8,7 +9,7 @@ class GameObject
 public:
 	virtual ~GameObject() = default;
 
-	enum Direction {
+	enum Direction: uint8_t {
 		UP = 0,
 		RIGHT = 1,
 		DOWN = 2,

@@ -1,6 +1,8 @@
 #pragma once
 #include "glad/glad.h"
 #include "gameObject.h"
+#include <utility>
+#include <vector>
 
 class Goal : public GameObject {
 public:
@@ -25,5 +27,15 @@ class Lock : public Goal {
 public:
 	GLuint getTexture() override;
 	inline static GLuint texture;
+	std::pair<const char*, const char*>* question;
+	bool showQuestion = false;
+	Lock(Cell* cell);
+	void newQuestion();
 	using Goal::Goal;
+private:
+	inline static std::vector<std::pair<const char*, const char*>> questions = {
+		std::make_pair("What is the capital of France?", "Paris"),
+		std::make_pair("What is the capital of Germany?", "Berlin"),
+		std::make_pair("What is 8*8?", "64"),
+	};
 };

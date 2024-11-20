@@ -1,4 +1,7 @@
 #include "goal.h"
+#include "maze.h"
+#include <algorithm>
+#include <random>
 
 void Goal::setVisible(const bool visible) {
 	this->visible = visible;
@@ -18,4 +21,16 @@ GLuint Peppermint::getTexture() {
 }
 GLuint Lock::getTexture() {
 	return Lock::texture;
+}
+Lock::Lock(Cell* cell) {
+	std::ranges::shuffle(questions, std::mt19937(std::random_device()()));
+	this->question = &questions.back();
+	questions.pop_back();
+	this->GameObject::setX(cell->getX());
+	this->GameObject::setY(cell->getY());
+}
+
+void Lock::newQuestion() {
+	this->question = &questions.back();
+	questions.pop_back();
 }

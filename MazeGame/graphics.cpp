@@ -77,7 +77,7 @@ void processInput(GLFWwindow* window)
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-	if (action == GLFW_REPEAT || action == GLFW_PRESS) {
+	if (Game::questionState==HIDDEN  && (action == GLFW_REPEAT || action == GLFW_PRESS)) {
 		switch (key)
 		{
 		case GLFW_KEY_W:
@@ -96,6 +96,18 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 			break;
 		}
 	}
+	else if (Game::questionState!=HIDDEN && (action == GLFW_REPEAT || action == GLFW_PRESS)) {
+		if (key == GLFW_KEY_ENTER) {
+			Game::questionState = ANSWERED;
+		}
+		else if (key == GLFW_KEY_BACKSPACE) {
+			if (!Game::textInput.empty())
+				Game::textInput.pop_back();
+		}
+		else if ((key >= GLFW_KEY_A && key <= GLFW_KEY_Z) || (GLFW_KEY_0 <= key && key <= GLFW_KEY_9)) {
+			Game::textInput += static_cast<char>(key);
+		}
+	}
 }
 
 float* hexColour2Float(const int hexColour) {
@@ -112,7 +124,7 @@ static void normaliseGraphCoords(const unsigned int x, const unsigned int y, flo
 	_y = 0.9f - y * 0.1f;
 }
 
-static float* normaliseGraphCoords(const unsigned int x, const unsigned int y) {
+[[maybe_unused]] static float* normaliseGraphCoords(const unsigned int x, const unsigned int y) {
 	static float out[2];
 	out[0] = -0.9f + x * 0.1f + 0.2f;
 	out[1] = 0.9f - y * 0.1f;
@@ -214,7 +226,7 @@ GLuint loadDDSTexture(const char* path) {
 
 	char fileCode[4];
 	fread_s(fileCode, 4, 4, 1, fp);
-	if (strncmp(fileCode, R"(DDS )", 4) != 0) {
+    if (memcmp(fileCode, "DDS ", 4) != 0) {
 		fprintf_s(stderr, "Not a DDS file\n");
 		fclose(fp);
 		return -1;
@@ -222,9 +234,8 @@ GLuint loadDDSTexture(const char* path) {
 
 	fread_s(&fileHeader, sizeof(fileHeader), 124, 1, fp);
 
-	unsigned char* mipMapBuffer;
 	unsigned int bufferSize = fileHeader.dwMipMapCount > 1 ? fileHeader.dwPitchOrLinearSize * 2 : fileHeader.dwPitchOrLinearSize;
-	mipMapBuffer = new unsigned char[bufferSize];
+	unsigned char* mipMapBuffer = new unsigned char[bufferSize];
 	fread_s(mipMapBuffer, bufferSize, 1, bufferSize, fp);
 	fclose(fp);
 
@@ -366,7 +377,7 @@ void Item::draw() {
 	const glm::mat4 projection = glm::ortho(0.0f, 1000.0f, 0.0f, 1000.0f, -1.0f, 1.0f);
 	Game::itemShader->setMat4("projection", projection);
 
-	float x = this->getX();
+	float x = static_cast<float>(this->getX());
 	float y = 1000.0f - 20.0f;
 	constexpr float size = 25.0f;
 
@@ -432,7 +443,7 @@ static void drawScore(const Character* chr) {
 	drawText(std::format("Score: {}", chr->getScore()).c_str(), 20.0f, 40.0f, 1.0f, Game::textShader);
 }
 
-static void drawTimer(std::chrono::steady_clock::time_point& t) {
+static void drawTimer(const std::chrono::steady_clock::time_point& t) {
 	auto time = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - t).count();
 	auto minutes = time / 60;
 	auto seconds = time % 60;
@@ -445,7 +456,7 @@ static void drawItems(const Character* chr) {
 	for (unsigned int i = 0; i < chr->getCollectedPeppermints(); i++) {
 		Item item;
 		item.setTexture(Peppermint::texture);
-		item.setX(495.0f + i * 25.0f);
+		item.setX(495 + i * 25);
 		item.draw();
 	}
 }
@@ -467,10 +478,22 @@ void render() {
 			});
 		std::ranges::for_each(Game::maze->locks, [&](Lock* lock) {
 			lock->draw();
-			});
+			if (lock->showQuestion) {
+				drawText(std::format("{} {}", lock->question->first, Game::textInput).c_str(), 200.0f, 700.0f, 1.0f, Game::textShader);
+				Game::questionState = SHOWN;
+			}
+			if (Game::questionState == CORRECT) {
+				drawText("Correct! +1 Point", 200.0f, 700.0f, 1.0f, Game::textShader);
+				Game::questionState = HIDDEN;
+			}
+			else if (Game::questionState == INCORRECT) {
+				drawText("Incorrect! Restarting..", 200.0f, 700.0f, 1.0f, Game::textShader);
+				Game::questionState = HIDDEN;
+			}
+		});
 		std::ranges::for_each(Game::maze->enemies, [&](Enemy* enemy) {
 			enemy->draw();
-			});
+		});
 	}
 
 	drawLines(v, 0xFF0A00FF, !Game::maze->isDoneGenerating());
@@ -478,6 +501,7 @@ void render() {
 	drawScore(Game::maze->player);
 	drawTimer(Game::gameTimer);
 	drawItems(Game::maze->player);
+	drawText(std::format("Level: {}", Game::level).c_str(), 600.0f, 40.0f, 1.0f, Game::textShader);
 
 	if (Game::gameOver)
 		drawText("Game Over", 150.0f, 250.0f, 2.0f, Game::textShader);

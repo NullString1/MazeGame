@@ -4,7 +4,7 @@
 #include "graphics.h"
 
 void Enemy::tick() {
-	if (this->ticksSinceLastPF > (5 * this->minTicksSinceLastMove) || this->moves.empty()) {
+	if (this->ticksSinceLastPF > (5 * minTicksSinceLastMove) || this->moves.empty()) {
 		const unsigned int target[2] = { Game::maze->player->getX(), Game::maze->player->getY() };
 		std::stack<CoordPair> path = findPathBFS(Game::maze->getCell(this->getX(), this->getY()), Game::maze->getCell(target[0], target[1]));
 		CoordPair previous = CoordPair(this->getX(), this->getY());
@@ -27,7 +27,7 @@ void Enemy::tick() {
 		}
 		this->ticksSinceLastPF = 0;
 	}
-	if (!this->moves.empty() && this->ticksSinceLastMove > this->minTicksSinceLastMove) {
+	if (!this->moves.empty() && this->ticksSinceLastMove > minTicksSinceLastMove) {
 		this->move(this->moves.front());
 		this->moves.pop();
 		this->ticksSinceLastMove = 0;

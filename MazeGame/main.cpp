@@ -14,31 +14,57 @@ int gameLoop(Maze& maze, Character& character) {
 		Game::fps_start_t = std::chrono::high_resolution_clock::now();
 
 		render();
-		std::ranges::for_each(maze.peppermints, [&](Peppermint* peppermint) {
-			if (peppermint->isVisible() && character.getX() == peppermint->getX() && character.getY() == peppermint->getY()) {
-				character.incrementScore();
-				character.incrementCollectedPeppermints();
-				peppermint->setVisible(false);
-			}
-			});
-		std::erase_if(maze.enemies, [&](Enemy* enemy) {
-			if (character.getX() == enemy->getX() && character.getY() == enemy->getY()) {
-				if (character.getCollectedPeppermints() == 0)
-				{
-					character.decrementScore();
-					character.setX(0);
-					character.setY(0);
+		if (Game::questionState == HIDDEN) {
+			std::ranges::for_each(maze.peppermints, [&](Peppermint* peppermint) {
+				if (peppermint->isVisible() && character.getX() == peppermint->getX() && character.getY() == peppermint->getY()) {
+					character.incrementScore();
+					character.incrementCollectedPeppermints();
+					peppermint->setVisible(false);
 				}
-				else
-				{
-					character.decrementCollectedPeppermints();
-					return true;
+				});
+			std::erase_if(maze.enemies, [&](Enemy* enemy) {
+				if (character.getX() == enemy->getX() && character.getY() == enemy->getY()) {
+					if (character.getCollectedPeppermints() == 0)
+					{
+						character.decrementScore();
+						character.setX(0);
+						character.setY(0);
+					}
+					else
+					{
+						character.decrementCollectedPeppermints();
+						return true;
+					}
+				}
+				enemy->tick();
+				return false;
+				}
+			);
+		}
+		std::ranges::for_each(maze.locks, [&](Lock* lock) {
+			if (lock->isVisible() && character.getX() == lock->getX() && character.getY() == lock->getY()) {
+				if (Game::questionState == HIDDEN && !lock->showQuestion)
+					lock->showQuestion = true;
+				else if (Game::questionState == ANSWERED && lock->showQuestion) {
+					lock->setVisible(false);
+					lock->showQuestion = false;
+					if (Game::textInput == lock->question->second) {
+						Game::questionState = CORRECT;
+						Game::textInput.clear();
+						Game::level++;
+						Game::maze->resetMaze();
+						lock->newQuestion();
+						character.setX(0);
+						character.setY(0);
+						character.incrementScore();
+					} else {
+						Game::questionState = INCORRECT;
+						Game::maze->resetMaze();
+						Game::textInput.clear();
+					}
 				}
 			}
-			enemy->tick();
-			return false;
-			}
-		);
+		});
 
 		if (std::chrono::duration_cast<std::chrono::minutes>(std::chrono::steady_clock::now() - Game::gameTimer).count() >= 5) {
 			Game::gameOver = true;
