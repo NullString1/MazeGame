@@ -47,11 +47,10 @@ int createWindow() { // https://learnopengl.com/Getting-started/Hello-Window
 	return 0;
 }
 
-int setupGraphics(Maze& _maze) {
+int setupGraphics() {
 	if (createWindow() == -1)
 		return -1;
 	loadFont();
-	Game::maze = &_maze;
 	Peppermint::texture = Game::peppermintTexture;
 	Character::texture = Game::characterTexture;
 	Character::texture2 = Game::characterTexture2;
@@ -509,6 +508,22 @@ void render() {
 	processInput(Game::window);
 	glfwSwapBuffers(Game::window);
 	glfwPollEvents();
+}
+
+
+void renderMenu() {
+	glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	drawText("MAZE GAME!", 1000/2/2/2, 100, 2, Game::textShader);
+	drawText("PLAY", 300, 300, 1, Game::textShader);
+	drawText("EXIT", 450, 300, 1, Game::textShader);
+
+
+	processInput(Game::window);
+	glfwSwapBuffers(Game::window);
+	glfwPollEvents();
+	Sleep(1000);
 }
 
 void close() {

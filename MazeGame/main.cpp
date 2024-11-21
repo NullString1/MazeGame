@@ -7,9 +7,6 @@
 #include "enemy.h"
 
 int gameLoop(Maze& maze, Character& character) {
-	if (setupGraphics(maze) != 0)
-		return -1;
-
 	while (!shouldClose()) {
 		Game::fps_start_t = std::chrono::high_resolution_clock::now();
 
@@ -48,20 +45,21 @@ int gameLoop(Maze& maze, Character& character) {
 				else if (Game::questionState == ANSWERED && lock->showQuestion) {
 					lock->setVisible(false);
 					lock->showQuestion = false;
+					std::ranges::transform(Game::textInput, Game::textInput.begin(),
+					                       [](unsigned char c) { return std::tolower(c); });
 					if (Game::textInput == lock->question->second) {
 						Game::questionState = CORRECT;
-						Game::textInput.clear();
 						Game::level++;
-						Game::maze->resetMaze();
-						lock->newQuestion();
-						character.setX(0);
-						character.setY(0);
 						character.incrementScore();
+						Game::gameTimer = std::chrono::steady_clock::now();
 					} else {
 						Game::questionState = INCORRECT;
-						Game::maze->resetMaze();
-						Game::textInput.clear();
 					}
+					Game::maze->resetMaze();
+					Game::textInput.clear();
+					lock->newQuestion();
+					character.setX(0);
+					character.setY(0);
 				}
 			}
 		});
@@ -77,14 +75,25 @@ int gameLoop(Maze& maze, Character& character) {
 	return 0;
 }
 
+int gameMenu() {
+	if (setupGraphics() != 0)
+		return -1;
+	if (!shouldClose()) {
+		renderMenu();
+	}
+
+}
+
 int main() {
 	srand(static_cast<unsigned int>(time(nullptr)));
 	constexpr int mazeSize = 10;
 
 	Character character;
-	Maze maze(mazeSize, mazeSize, &character);
+	Maze maze = Maze(mazeSize, mazeSize, &character);
+	Game::maze = &maze;
 
 	Game::gameTimer = std::chrono::steady_clock::now();
+	gameMenu();
 	gameLoop(maze, character);
 
 	close();

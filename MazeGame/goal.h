@@ -34,8 +34,8 @@ public:
 	using Goal::Goal;
 private:
 	inline static std::vector<std::pair<const char*, const char*>> questions = {
-		std::make_pair("What is the capital of France?", "Paris"),
-		std::make_pair("What is the capital of Germany?", "Berlin"),
+		std::make_pair("What is the capital of France?", "paris"),
+		std::make_pair("What is the capital of Germany?", "berlin"),
 		std::make_pair("What is 8*8?", "64"),
 	};
 };

@@ -9,7 +9,7 @@
 #include "character.h"
 
 int createWindow();
-int setupGraphics(Maze& _maze);
+int setupGraphics();
 void render();
 void setupVAOVBO();
 float* hexColour2Float(int hexColour);
@@ -24,6 +24,7 @@ void loadTextures();
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void drawItems(const Character* chr);
 void generateLineTexture();
+void renderMenu();
 
 enum questionState: std::uint8_t {
 	SHOWN,
