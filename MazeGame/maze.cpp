@@ -28,8 +28,6 @@ Cell* Maze::randCell(unsigned int lowLimitX, unsigned int highLimitX, unsigned i
 }
 
 void Maze::resetMaze() {
-	delete startPoint;
-	delete endPoint;
 	std::ranges::for_each(peppermints, [](const Peppermint* p) { delete p; });
 	std::ranges::for_each(locks, [](const Lock* l) { delete l; });
 	std::ranges::for_each(enemies, [](const Enemy* e) { delete e; });
