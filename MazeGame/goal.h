@@ -37,5 +37,7 @@ private:
 		std::make_pair("What is the capital of France?", "paris"),
 		std::make_pair("What is the capital of Germany?", "berlin"),
 		std::make_pair("What is 8*8?", "64"),
+		std::make_pair("What is 9*9?", "81"),
+		std::make_pair("What is 10*10?", "100"),
 	};
 };

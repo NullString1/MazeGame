@@ -91,6 +91,12 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		case GLFW_KEY_D:
 			Game::maze->player->move(Character::RIGHT);
 			break;
+		case GLFW_KEY_P:
+			Game::textInput = "P";
+			break;
+		case GLFW_KEY_E:
+			Game::textInput = "E";
+			break;
 		default:
 			break;
 		}
@@ -516,14 +522,13 @@ void renderMenu() {
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	drawText("MAZE GAME!", 1000/2/2/2, 100, 2, Game::textShader);
-	drawText("PLAY", 300, 300, 1, Game::textShader);
-	drawText("EXIT", 450, 300, 1, Game::textShader);
-
+	drawText("PLAY (P)", 300, 300, 1, Game::textShader);
+	drawText("EXIT (E)", 450, 300, 1, Game::textShader);
 
 	processInput(Game::window);
 	glfwSwapBuffers(Game::window);
 	glfwPollEvents();
-	Sleep(1000);
+
 }
 
 void close() {

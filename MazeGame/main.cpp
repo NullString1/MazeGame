@@ -78,10 +78,13 @@ int gameLoop(Maze& maze, Character& character) {
 int gameMenu() {
 	if (setupGraphics() != 0)
 		return -1;
-	if (!shouldClose()) {
+	while (!shouldClose() && Game::textInput!="P" && Game::textInput!="E") {
+		Game::fps_start_t = std::chrono::high_resolution_clock::now();
 		renderMenu();
+		Game::fps_end_t = std::chrono::high_resolution_clock::now();
+		Sleep(static_cast<DWORD>(std::max<long long>(0, 1000 / 60 - std::chrono::duration_cast<std::chrono::milliseconds>(Game::fps_end_t - Game::fps_start_t).count()))); // 60fps = 1000/60 = 16.666ms
 	}
-
+	return 0;
 }
 
 int main() {
