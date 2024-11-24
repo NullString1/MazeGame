@@ -47,7 +47,6 @@ public:
 	bool isDoneGenerating() const;
 	void resetMaze();
 
-
 private:
 	inline static unsigned int genCount = 0;
 	unsigned int width, height;

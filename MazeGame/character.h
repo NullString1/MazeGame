@@ -10,6 +10,7 @@ public:
 	void incrementScore();
 	void decrementScore();
 	unsigned int getCollectedPeppermints() const;
+	void setCollectedPeppermints(unsigned int collectedPeppermints);
 	void incrementCollectedPeppermints();
 	void decrementCollectedPeppermints();
 	static GLuint getTexture(unsigned int a);

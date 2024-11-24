@@ -2,6 +2,9 @@
 #include <typeinfo>
 #include <format>
 #include "graphics.h"
+
+#include <filesystem>
+
 #include "font.h"
 #include "goal.h"
 #include "enemy.h"
@@ -96,6 +99,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 			break;
 		case GLFW_KEY_E:
 			Game::textInput = "E";
+			break;
+		case GLFW_KEY_L:
+			Game::textInput = "L";
 			break;
 		default:
 			break;
@@ -506,7 +512,8 @@ void render() {
 	drawScore(Game::maze->player);
 	drawTimer(Game::gameTimer);
 	drawItems(Game::maze->player);
-	drawText(std::format("Level: {}", Game::level).c_str(), 600.0f, 40.0f, 1.0f, Game::textShader);
+	drawText(std::format("Level: {}", Game::level).c_str(), 500.0f, 40.0f, 1.0f, Game::textShader);
+	drawText("Press ESC to exit and save", 650.0f, 40.0f, 1.0f, Game::textShader);
 
 	if (Game::gameOver)
 		drawText("Game Over", 150.0f, 250.0f, 2.0f, Game::textShader);
@@ -521,21 +528,32 @@ void renderMenu() {
 	glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	drawText("MAZE GAME!", 1000/2/2/2, 100, 2, Game::textShader);
+	drawText("MAZE GAME!", 300/2, 100, 2, Game::textShader);
 	drawText("PLAY (P)", 300, 300, 1, Game::textShader);
-	drawText("EXIT (E)", 450, 300, 1, Game::textShader);
+	drawText("LOAD (L)", 450, 300, 1, Game::textShader);
+	drawText("EXIT (E)", 600, 300, 1, Game::textShader);
 
 	processInput(Game::window);
 	glfwSwapBuffers(Game::window);
 	glfwPollEvents();
+}
 
+static void saveGame() {
+	std::ofstream file(std::filesystem::current_path().append("save.conf"));
+	file << Game::level << std::endl;
+	file << Game::maze->player->getScore() << std::endl;
+	file << Game::maze->player->getCollectedPeppermints() << std::endl;
+	file << std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - Game::gameTimer).count();
+	file.close();
 }
 
 void close() {
+	saveGame();
 	glDeleteVertexArrays(1, &Game::mazeVAO);
 	glDeleteVertexArrays(1, &Game::charVAO);
 	glDeleteBuffers(1, &Game::mazeVBO);
 	glDeleteBuffers(1, &Game::charVBO);
 	glDeleteProgram(Game::lineShader->ID);
 	glfwTerminate();
+	exit(0);
 }

@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <filesystem>
 #include <thread>
 #include "graphics.h"
 #include "character.h"
@@ -75,17 +76,51 @@ int gameLoop(Maze& maze, Character& character) {
 	return 0;
 }
 
+void loadSave() {
+	std::ifstream file(std::filesystem::current_path().append("save.conf"));
+	if (file.is_open()) {
+		file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+		try {
+			std::string line;
+			std::getline(file, line);
+			Game::level = std::stoi(line);
+			std::getline(file, line);
+			Game::maze->player->setScore(std::stoi(line));
+			std::getline(file, line);
+			Game::maze->player->setCollectedPeppermints(std::stoi(line));
+			std::getline(file, line);
+			auto now = std::chrono::steady_clock::now();
+			auto oldTime = std::chrono::seconds(std::stoi(line));
+			auto t = now - oldTime;
+			Game::gameTimer = t;
+			file.close();
+		}
+		catch (std::ifstream::failure& e) {
+			std::cout << "ERROR::LOADING SAVE FILE " << e.what() << '\n';
+		}
+	}
+}
+
+
 int gameMenu() {
 	if (setupGraphics() != 0)
 		return -1;
-	while (!shouldClose() && Game::textInput!="P" && Game::textInput!="E") {
+	while (!shouldClose() && Game::textInput!="P" && Game::textInput!="E" && Game::textInput!="L") {
 		Game::fps_start_t = std::chrono::high_resolution_clock::now();
 		renderMenu();
 		Game::fps_end_t = std::chrono::high_resolution_clock::now();
 		Sleep(static_cast<DWORD>(std::max<long long>(0, 1000 / 60 - std::chrono::duration_cast<std::chrono::milliseconds>(Game::fps_end_t - Game::fps_start_t).count()))); // 60fps = 1000/60 = 16.666ms
 	}
+	if (Game::textInput == "E")
+		close();
+	else if (Game::textInput == "L")
+		loadSave();
+	else if (Game::textInput == "P") {
+		return 0;
+	}
 	return 0;
 }
+
 
 int main() {
 	srand(static_cast<unsigned int>(time(nullptr)));

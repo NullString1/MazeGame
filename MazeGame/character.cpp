@@ -19,6 +19,10 @@ unsigned int Character::getCollectedPeppermints() const {
 	return this->collectedPeppermints;
 }
 
+void Character::setCollectedPeppermints(unsigned int collectedPeppermints) {
+	this->collectedPeppermints = collectedPeppermints;
+}
+
 void Character::incrementCollectedPeppermints() {
 	this->collectedPeppermints++;
 }
