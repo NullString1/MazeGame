@@ -158,11 +158,11 @@ void loadShaders()
 }
 
 void loadTextures() {
-	Game::characterTexture = loadDDSTexture(R"(C:\Users\bilbo\source\repos\MazeGame\MazeGame\character1.DDS)");
-	Game::characterTexture2 = loadDDSTexture(R"(C:\Users\bilbo\source\repos\MazeGame\MazeGame\character2.DDS)");
-	Game::peppermintTexture = loadDDSTexture(R"(C:\Users\bilbo\source\repos\MazeGame\MazeGame\peppermint.DDS)");
-	Game::enemyTexture = loadDDSTexture(R"(C:\Users\bilbo\source\repos\MazeGame\MazeGame\farquad.DDS)");
-	Game::lockTexture = loadDDSTexture(R"(C:\Users\bilbo\source\repos\MazeGame\MazeGame\lock.DDS)");
+	Game::characterTexture = loadDDSTexture(R"(character1.DDS)");
+	Game::characterTexture2 = loadDDSTexture(R"(character2.DDS)");
+	Game::peppermintTexture = loadDDSTexture(R"(peppermint.DDS)");
+	Game::enemyTexture = loadDDSTexture(R"(farquad.DDS)");
+	Game::lockTexture = loadDDSTexture(R"(lock.DDS)");
 	generateLineTexture();
 }
 
