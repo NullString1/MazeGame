@@ -55,4 +55,6 @@ private:
 	unsigned int width, height;
 	bool doneGenerating = false;
 	std::vector<Cell*> maze;
+	inline static unsigned int gens, endPointGC;
+	std::vector<unsigned int> enemiesGC, peppermintsGC;
 };

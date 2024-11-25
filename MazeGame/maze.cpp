@@ -4,6 +4,7 @@
 #include "goal.h"
 #include "character.h"
 #include "enemy.h"
+#include "graphics.h"
 
 static std::vector<Cell*> stack;
 
@@ -40,6 +41,7 @@ void Maze::resetMaze(bool resetWalls) {
 	this->peppermints.clear();
 	this->locks.clear();
 	this->enemies.clear();
+	this->enemiesGC.clear();
 	if (resetWalls) {
 		for (const auto cell : this->maze) {
 			cell->setVisited(false);
@@ -49,7 +51,13 @@ void Maze::resetMaze(bool resetWalls) {
 			cell->walls[3] = true;
 		}
 	}
+	gens = this->getHeight() * this->getWidth();
+	endPointGC = static_cast<unsigned int>(gens * (random(9, 10) / 10.0f));
 
+	for (unsigned int i=0; i<Game::level; i++) {
+		peppermintsGC.emplace_back(static_cast<unsigned int>(gens * (random(2, 4) / 10.0f)));
+		enemiesGC.emplace_back(static_cast<unsigned int>(gens * (random(6, 9) / 10.0f)));
+	}
 }
 
 void Maze::resetMaze() {
@@ -164,16 +172,24 @@ void Maze::generateMaze() {
 			}
 		}
 	}
-	static const unsigned int gens = this->getHeight() * this->getWidth();
-	static const unsigned int peppermintGC = static_cast<unsigned int>(gens * (random(2, 3) / 10.0f));
-	static const unsigned int enemyGC = static_cast<unsigned int>(gens * (random(7, 8) / 10.0f));
-	static const unsigned int endPointGC = static_cast<unsigned int>(gens * (random(9, 10) / 10.0f));
 
-	if (this->peppermints.empty() && genCount == peppermintGC)
-		this->peppermints.emplace_back(new Peppermint(this->current));
-	else if (this->enemies.empty() && genCount == enemyGC)
-		this->enemies.emplace_back(new Enemy(this->current));
-	else if (this->endPoint == nullptr && genCount == endPointGC) {
+	std::erase_if(enemiesGC, [this](unsigned int x) {
+		if (genCount == x) {
+			this->enemies.emplace_back(new Enemy(this->current));
+			return true;
+		}
+		return false;
+	});
+
+	std::erase_if(peppermintsGC, [this](unsigned int x) {
+		if (genCount == x) {
+			this->peppermints.emplace_back(new Peppermint(this->current));
+			return true;
+		}
+		return false;
+	});
+
+	if (this->endPoint == nullptr && genCount == endPointGC) {
 		this->endPoint = this->current;
 		this->locks.emplace_back(new Lock(this->endPoint));
 	}
@@ -233,6 +249,13 @@ Maze::Maze(const unsigned int width, const unsigned int height, Character* chara
 		}
 	}
 	this->current = this->getCell(0, 0);
+	gens = this->getHeight() * this->getWidth();
+	endPointGC = static_cast<unsigned int>(gens * (random(9, 10) / 10.0f));
+
+	for (unsigned int i = 0; i < Game::level; i++) {
+		peppermintsGC.emplace_back(static_cast<unsigned int>(gens * (random(2, 4) / 10.0f)));
+		enemiesGC.emplace_back(static_cast<unsigned int>(gens * (random(6, 9) / 10.0f)));
+	}
 }
 
 Maze::~Maze() {
