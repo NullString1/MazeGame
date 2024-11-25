@@ -54,8 +54,8 @@ int gameLoop(Maze& maze, Character& character) {
 					if (Game::textInput == lock->question->second) {
 						Game::questionState = CORRECT;
 						character.incrementScore();
-						w = Game::maze->getWidth() + 2;
-						h = Game::maze->getHeight() + 2;
+						w = Game::maze->getWidth() + 1;
+						h = Game::maze->getHeight() + 1;
 					} else {
 						Game::questionState = INCORRECT;
 						w = Game::maze->getWidth();
@@ -109,21 +109,33 @@ void loadSave() {
 }
 
 int gameMenu() {
+	unsigned int size = 10;
 	if (setupGraphics() != 0)
 		return -1;
 	while (!shouldClose() && Game::textInput!="P" && Game::textInput!="E" && Game::textInput!="L") {
 		Game::fps_start_t = std::chrono::high_resolution_clock::now();
-		renderMenu();
+		renderMenu(size);
+		if (Game::textInput == "+" && size < 15) {
+			size++;
+			Game::textInput.clear();
+		}
+
+		else if (Game::textInput == "-" && size > 1) {
+			size--;
+			Game::textInput.clear();
+		}
 		Game::fps_end_t = std::chrono::high_resolution_clock::now();
 		Sleep(static_cast<DWORD>(std::max<long long>(0, 1000 / 60 - std::chrono::duration_cast<std::chrono::milliseconds>(Game::fps_end_t - Game::fps_start_t).count()))); // 60fps = 1000/60 = 16.666ms
+	}
+	if (size != 10) {
+		Game::maze->resizeMaze(size, size);
 	}
 	if (Game::textInput == "E")
 		close();
 	else if (Game::textInput == "L")
 		loadSave();
-	else if (Game::textInput == "P") {
+	else if (Game::textInput == "P") 
 		return 0;
-	}
 	return 0;
 }
 

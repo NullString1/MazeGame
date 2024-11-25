@@ -24,7 +24,7 @@ void loadTextures();
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 void drawItems(const Character* chr);
 void generateLineTexture();
-void renderMenu();
+void renderMenu(unsigned int& size);
 
 enum questionState: std::uint8_t {
 	SHOWN,

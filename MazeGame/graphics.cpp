@@ -103,6 +103,12 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 		case GLFW_KEY_L:
 			Game::textInput = "L";
 			break;
+		case GLFW_KEY_KP_ADD:
+			Game::textInput = "+";
+			break;
+		case GLFW_KEY_KP_SUBTRACT:
+			Game::textInput = "-";
+			break;
 		default:
 			break;
 		}
@@ -524,7 +530,7 @@ void render() {
 }
 
 
-void renderMenu() {
+void renderMenu(unsigned int& size) {
 	glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
@@ -532,6 +538,7 @@ void renderMenu() {
 	drawText("PLAY (P)", 300, 300, 1, Game::textShader);
 	drawText("LOAD (L)", 450, 300, 1, Game::textShader);
 	drawText("EXIT (E)", 600, 300, 1, Game::textShader);
+	drawText(std::format("Size: {} +/-", size).c_str(), 750, 300, 1, Game::textShader);
 
 	processInput(Game::window);
 	glfwSwapBuffers(Game::window);
