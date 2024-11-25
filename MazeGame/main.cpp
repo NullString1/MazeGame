@@ -1,3 +1,4 @@
+#include "main.h"
 #include <algorithm>
 #include <filesystem>
 #include <thread>
@@ -39,6 +40,8 @@ int gameLoop(Maze& maze, Character& character) {
 				}
 			);
 		}
+		bool shouldReset = false;
+		unsigned int w, h;
 		std::ranges::for_each(maze.locks, [&](Lock* lock) {
 			if (lock->isVisible() && character.getX() == lock->getX() && character.getY() == lock->getY()) {
 				if (Game::questionState == HIDDEN && !lock->showQuestion)
@@ -50,20 +53,24 @@ int gameLoop(Maze& maze, Character& character) {
 					                       [](unsigned char c) { return std::tolower(c); });
 					if (Game::textInput == lock->question->second) {
 						Game::questionState = CORRECT;
-						Game::level++;
 						character.incrementScore();
-						Game::gameTimer = std::chrono::steady_clock::now();
+						w = Game::maze->getWidth() + 2;
+						h = Game::maze->getHeight() + 2;
 					} else {
 						Game::questionState = INCORRECT;
+						w = Game::maze->getWidth();
+						h = Game::maze->getHeight();
+						lock->newQuestion();
 					}
-					Game::maze->resetMaze();
 					Game::textInput.clear();
-					lock->newQuestion();
-					character.setX(0);
-					character.setY(0);
+					shouldReset = true;
 				}
 			}
 		});
+		if (shouldReset) {
+			newLevel(w, h);
+			shouldReset = false;
+		}
 
 		if (std::chrono::duration_cast<std::chrono::minutes>(std::chrono::steady_clock::now() - Game::gameTimer).count() >= 5) {
 			Game::gameOver = true;
@@ -101,7 +108,6 @@ void loadSave() {
 	}
 }
 
-
 int gameMenu() {
 	if (setupGraphics() != 0)
 		return -1;
@@ -119,6 +125,19 @@ int gameMenu() {
 		return 0;
 	}
 	return 0;
+}
+
+static void newLevel(unsigned int w, unsigned int h) {
+	if (w != Game::maze->getWidth() || h != Game::maze->getHeight()) { // if the new maze is not the same size as the old one
+		Game::maze->resizeMaze(w, h);
+	}
+	else { // otherwise just reset the maze
+		Game::maze->resetMaze();
+	}
+	Game::maze->player->setX(0);
+	Game::maze->player->setY(0);
+	Game::gameTimer = std::chrono::steady_clock::now();
+	Game::level++;
 }
 
 

@@ -17,7 +17,7 @@ public:
 	bool getEdge(unsigned int edge) const;
 	bool isVisited() const;
 	bool setVisited(bool v);
-	unsigned int const getX(), getY();
+	unsigned int getX() const, getY() const;
 	unsigned int setX(unsigned int x), setY(unsigned int y);
 	bool operator==(const Cell& other) const {
 		return this->x == other.x && this->y == other.y;
@@ -37,15 +37,18 @@ public:
 	std::vector<Enemy*> enemies;
 
 	Maze(unsigned int width, unsigned int height, Character* character);
+	~Maze();
 
 	Cell* getCell(unsigned int x, unsigned int y) const;
 	Cell* randCell() const;
 	Cell* randCell(unsigned int lowLimitX, unsigned int highLimitX, unsigned int lowLimitY, unsigned int highLimitY) const;
 	void generateMaze();
 	void toVertices(std::vector<float>& vertices) const;
-	const unsigned int getWidth(), getHeight();
+	unsigned int getWidth() const, getHeight() const;
 	bool isDoneGenerating() const;
 	void resetMaze();
+	void resetMaze(bool resetWalls);
+	void resizeMaze(unsigned int w, unsigned int h);
 
 private:
 	inline static unsigned int genCount = 0;

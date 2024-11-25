@@ -540,9 +540,9 @@ void renderMenu() {
 
 static void saveGame() {
 	std::ofstream file(std::filesystem::current_path().append("save.conf"));
-	file << Game::level << std::endl;
-	file << Game::maze->player->getScore() << std::endl;
-	file << Game::maze->player->getCollectedPeppermints() << std::endl;
+	file << Game::level << '\n';
+	file << Game::maze->player->getScore() << '\n';
+	file << Game::maze->player->getCollectedPeppermints() << '\n';
 	file << std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - Game::gameTimer).count();
 	file.close();
 }

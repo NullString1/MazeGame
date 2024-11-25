@@ -159,6 +159,7 @@
     <ClInclude Include="goal.h" />
     <ClInclude Include="graphics.h" />
     <ClInclude Include="item.h" />
+    <ClInclude Include="main.h" />
     <ClInclude Include="maze.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="stb_truetype.h" />

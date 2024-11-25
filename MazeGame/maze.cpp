@@ -12,7 +12,7 @@ static int random(const int min, const int max)
 	return rand() % (max - min + 1) + min;
 }
 
-static float randomF(const float min, const float max)
+[[maybe_unused]] static float randomF(const float min, const float max)
 {
 	return static_cast<float>(rand()) / RAND_MAX * (max - min) + min;
 }
@@ -28,7 +28,7 @@ Cell* Maze::randCell(unsigned int lowLimitX, unsigned int highLimitX, unsigned i
 }
 
 
-void Maze::resetMaze() {
+void Maze::resetMaze(bool resetWalls) {
 	std::ranges::for_each(peppermints, [](const Peppermint* p) { delete p; });
 	std::ranges::for_each(locks, [](const Lock* l) { delete l; });
 	std::ranges::for_each(enemies, [](const Enemy* e) { delete e; });
@@ -40,15 +40,55 @@ void Maze::resetMaze() {
 	this->peppermints.clear();
 	this->locks.clear();
 	this->enemies.clear();
-	for (const auto cell : this->maze) {
-		cell->setVisited(false);
-		cell->walls[0] = true;
-		cell->walls[1] = true;
-		cell->walls[2] = true;
-		cell->walls[3] = true;
+	if (resetWalls) {
+		for (const auto cell : this->maze) {
+			cell->setVisited(false);
+			cell->walls[0] = true;
+			cell->walls[1] = true;
+			cell->walls[2] = true;
+			cell->walls[3] = true;
+		}
 	}
 
 }
+
+void Maze::resetMaze() {
+	this->resetMaze(true);
+}
+
+
+void Maze::resizeMaze(const unsigned int w, const unsigned int h) {
+	this->width = w;
+	this->height = h;
+	for (const auto cell : this->maze) {
+		delete cell;
+	}
+	this->maze.clear();
+	this->maze = std::vector<Cell*>(this->width * this->height);
+	for (unsigned int i = 0; i < this->width; i++) {
+		for (unsigned int j = 0; j < this->height; j++) {
+			Cell* cell = new Cell(i, j);
+			cell->setX(i);
+			cell->setY(j);
+			this->maze[i * this->width + j] = new Cell(i, j);
+		}
+	}
+	for (unsigned int i = 0; i < this->width; i++) {
+		for (unsigned int j = 0; j < this->height; j++) {
+			Cell* cell = this->getCell(i, j);
+			if (j != 0) // if not top row
+				cell->neighbours.emplace_back(this->getCell(i, j - 1)); // top
+			if (i != 0) // if not left column
+				cell->neighbours.emplace_back(this->getCell(i - 1, j)); // left
+			if (j != this->height - 1) // if not bottom row
+				cell->neighbours.emplace_back(this->getCell(i, j + 1)); // bottom
+			if (i != this->width - 1) // if not right column
+				cell->neighbours.emplace_back(this->getCell(i + 1, j)); // right
+		}
+	}
+	this->resetMaze(false);
+}
+
 
 
 void Maze::generateMaze() {
@@ -157,11 +197,11 @@ bool Cell::setVisited(bool v) {
 	return this->visited = v;
 }
 
-const unsigned int Cell::getX() {
+unsigned int Cell::getX() const {
 	return this->x;
 }
 
-const unsigned int Cell::getY() {
+unsigned int Cell::getY() const {
 	return this->y;
 }
 
@@ -194,16 +234,32 @@ Maze::Maze(const unsigned int width, const unsigned int height, Character* chara
 	}
 	this->current = this->getCell(0, 0);
 }
+
+Maze::~Maze() {
+	for (const auto cell : this->maze) {
+		delete cell;
+	}
+	for (const auto peppermint : this->peppermints) {
+		delete peppermint;
+	}
+	for (const auto enemy : this->enemies) {
+		delete enemy;
+	}
+	for (const auto lock : this->locks) {
+		delete lock;
+	}
+}
+
 bool Cell::getEdge(unsigned int edge) const
 {
 	return this->walls[edge];
 }
 
-const unsigned int Maze::getWidth()  {
+unsigned int Maze::getWidth() const {
 	return this->width;
 }
 
-const unsigned int Maze::getHeight()  {
+unsigned int Maze::getHeight() const {
 	return this->height;
 }
 
