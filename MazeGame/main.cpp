@@ -142,14 +142,14 @@ int gameMenu() {
 static void newLevel(unsigned int w, unsigned int h) {
 	if (w != Game::maze->getWidth() || h != Game::maze->getHeight()) { // if the new maze is not the same size as the old one
 		Game::maze->resizeMaze(w, h);
+		Game::gameTimer = std::chrono::steady_clock::now();
+		Game::level++;
 	}
 	else { // otherwise just reset the maze
 		Game::maze->resetMaze();
 	}
 	Game::maze->player->setX(0);
 	Game::maze->player->setY(0);
-	Game::gameTimer = std::chrono::steady_clock::now();
-	Game::level++;
 }
 
 

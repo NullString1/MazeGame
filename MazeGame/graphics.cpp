@@ -551,6 +551,7 @@ static void saveGame() {
 	file << Game::maze->player->getScore() << '\n';
 	file << Game::maze->player->getCollectedPeppermints() << '\n';
 	file << std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - Game::gameTimer).count();
+	//file << Game::maze->getWidth();
 	file.close();
 }
 
