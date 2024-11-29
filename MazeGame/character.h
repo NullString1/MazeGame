@@ -3,6 +3,10 @@
 #include "gameObject.h"
 #include "entity.h"
 
+
+/**
+ * Character class represents player. Extends GameObject and Entity.
+ */
 class Character final : virtual public GameObject, public Entity {
 public:
 	unsigned int getScore() const;

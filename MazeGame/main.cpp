@@ -8,7 +8,13 @@
 #include "font.h"
 #include "enemy.h"
 
-int gameLoop(Maze& maze, Character& character) {
+
+/**
+ * Main game loop
+ * @param maze Reference to maze
+ * @param character Reference to character
+ */
+void gameLoop(Maze& maze, Character& character) {
 	while (!shouldClose()) {
 		Game::fps_start_t = std::chrono::high_resolution_clock::now();
 
@@ -80,9 +86,11 @@ int gameLoop(Maze& maze, Character& character) {
 		Sleep(static_cast<DWORD>(std::max<long long>(0, 1000 / 60 - std::chrono::duration_cast<std::chrono::milliseconds>(Game::fps_end_t - Game::fps_start_t).count()))); // 60fps = 1000/60 = 16.666ms
 
 	}
-	return 0;
 }
 
+/**
+ * Load save file
+ */
 void loadSave() {
 	std::ifstream file(std::filesystem::current_path().append("save.conf"));
 	if (file.is_open()) {
@@ -108,6 +116,9 @@ void loadSave() {
 	}
 }
 
+/**
+ * Game menu loop
+ */
 int gameMenu() {
 	unsigned int size = 10;
 	if (setupGraphics() != 0)
@@ -139,6 +150,11 @@ int gameMenu() {
 	return 0;
 }
 
+/**
+ * Create new level. If width and height are the same as the old maze, reset the maze, otherwise create a new maze object
+ * @param w width of maze
+ * @param h height of maze
+ */
 static void newLevel(unsigned int w, unsigned int h) {
 	if (w != Game::maze->getWidth() || h != Game::maze->getHeight()) { // if the new maze is not the same size as the old one
 		Game::maze->resizeMaze(w, h);
@@ -151,7 +167,6 @@ static void newLevel(unsigned int w, unsigned int h) {
 	Game::maze->player->setX(0);
 	Game::maze->player->setY(0);
 }
-
 
 int main() {
 	srand(static_cast<unsigned int>(time(nullptr)));

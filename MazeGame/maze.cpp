@@ -8,27 +8,47 @@
 
 static std::vector<Cell*> stack;
 
-static int random(const int min, const int max)
-{
-	return rand() % (max - min + 1) + min;
-}
+/**
+ * Generate random number between min and max
+ * @param min Minimum value
+ * @param max Maximum value
+ * @return Random value between min and max
+ */
+static int random(const int min, const int max) { return rand() % (max - min + 1) + min; }
 
-[[maybe_unused]] static float randomF(const float min, const float max)
-{
+/**
+ * Generate random number between min and max
+ * @param min Minimum value
+ * @param max Maximum value
+ * @return Random value between min and max
+ */
+[[maybe_unused]] static float randomF(const float min, const float max) {
 	return static_cast<float>(rand()) / RAND_MAX * (max - min) + min;
 }
 
-Cell* Maze::randCell() const {
-	return this->getCell(random(0, this->width - 1), random(0, this->height - 1));
+/**
+ * Get a random cell from maze
+ * @return pointer to random cell
+ */
+Cell* Maze::randCell() const { return this->getCell(random(0, this->width - 1), random(0, this->height - 1)); }
 
-}
-
-Cell* Maze::randCell(unsigned int lowLimitX, unsigned int highLimitX, unsigned int lowLimitY, unsigned int highLimitY) const {
+/**
+ * Get a random cell from maze between limits
+ * @param lowLimitX minimum x value
+ * @param highLimitX maximum x value
+ * @param lowLimitY minimum y value
+ * @param highLimitY maximum y value
+ * @return pointer to random cell
+ */
+Cell* Maze::randCell(unsigned int lowLimitX, unsigned int highLimitX, unsigned int lowLimitY,
+                     unsigned int highLimitY) const {
 	return this->getCell(random(lowLimitX, highLimitX), random(lowLimitY, highLimitY));
-
 }
 
-
+/**
+ * Reset maze
+ * @param resetWalls Should walls be reset. Not needed when maze was just resized
+ */
 void Maze::resetMaze(bool resetWalls) {
 	std::ranges::for_each(peppermints, [](const Peppermint* p) { delete p; });
 	std::ranges::for_each(locks, [](const Lock* l) { delete l; });
@@ -54,23 +74,26 @@ void Maze::resetMaze(bool resetWalls) {
 	gens = this->getHeight() * this->getWidth();
 	endPointGC = static_cast<unsigned int>(gens * (random(9, 10) / 10.0f));
 
-	for (unsigned int i=0; i<Game::level; i++) {
+	for (unsigned int i = 0; i < Game::level; i++) {
 		peppermintsGC.emplace_back(static_cast<unsigned int>(gens * (random(2, 4) / 10.0f)));
 		enemiesGC.emplace_back(static_cast<unsigned int>(gens * (random(6, 9) / 10.0f)));
 	}
 }
 
-void Maze::resetMaze() {
-	this->resetMaze(true);
-}
+/**
+ * Reset maze. Walls are reset
+ */
+void Maze::resetMaze() { this->resetMaze(true); }
 
-
+/**
+ * Resize maze
+ * @param w New width
+ * @param h New height
+ */
 void Maze::resizeMaze(const unsigned int w, const unsigned int h) {
 	this->width = w;
 	this->height = h;
-	for (const auto cell : this->maze) {
-		delete cell;
-	}
+	for (const auto cell : this->maze) { delete cell; }
 	this->maze.clear();
 	this->maze = std::vector<Cell*>(this->width * this->height);
 	for (unsigned int i = 0; i < this->width; i++) {
@@ -97,8 +120,9 @@ void Maze::resizeMaze(const unsigned int w, const unsigned int h) {
 	this->resetMaze(false);
 }
 
-
-
+/**
+ * Generate maze using recursive backtracking
+ */
 void Maze::generateMaze() {
 	genCount++;
 	if (!this->current->isVisited()) {
@@ -108,10 +132,8 @@ void Maze::generateMaze() {
 
 	std::vector<Cell*> unvisited;
 	std::ranges::for_each(this->current->neighbours.begin(), this->current->neighbours.end(), [&](Cell* cell) {
-		if (!cell->isVisited()) {
-			unvisited.emplace_back(cell);
-		}
-		});
+		if (!cell->isVisited()) { unvisited.emplace_back(cell); }
+	});
 
 	if (!unvisited.empty()) {
 		const unsigned int index = rand() % unvisited.size();
@@ -147,10 +169,11 @@ void Maze::generateMaze() {
 		this->startPoint = this->getCell(0, 0);
 		for (const auto cell : this->maze) {
 			cell->neighbours.clear();
-			for (const GameObject::Direction d : {GameObject::Direction::UP, GameObject::Direction::DOWN, GameObject::Direction::LEFT, GameObject::Direction::RIGHT}) {
-				if (cell->getEdge(d)) {
-					continue;
-				}
+			for (const GameObject::Direction d : {
+				     GameObject::Direction::UP, GameObject::Direction::DOWN, GameObject::Direction::LEFT,
+				     GameObject::Direction::RIGHT
+			     }) {
+				if (cell->getEdge(d)) { continue; }
 				switch (d) {
 				case GameObject::Direction::UP:
 					if (cell->getY() != 0)
@@ -195,32 +218,55 @@ void Maze::generateMaze() {
 	}
 }
 
+/**
+ * Cell constructor
+ * @param x X coordinate
+ * @param y Y coordinate
+ */
 Cell::Cell(unsigned int x, unsigned int y) {
 	this->x = x;
 	this->y = y;
 }
-Cell* Maze::getCell(unsigned int x, unsigned int y) const
-{
-	return this->maze[x * this->width + y];
-}
 
-bool Cell::isVisited() const
-{
-	return this->visited;
-}
+/**
+ * Get cell at coordinates
+ * @param x X coordinate
+ * @param y Y coordinate
+ * @return Cell at coordinates
+ */
+Cell* Maze::getCell(unsigned int x, unsigned int y) const { return this->maze[x * this->width + y]; }
 
-bool Cell::setVisited(bool v) {
-	return this->visited = v;
-}
+/**
+ * Check if cell is visited
+ * @return Is cell visited
+ */
+bool Cell::isVisited() const { return this->visited; }
 
-unsigned int Cell::getX() const {
-	return this->x;
-}
+/**
+ * Set visited status of cell
+ * @param v Visited status
+ * @return Visited status
+ */
+bool Cell::setVisited(bool v) { return this->visited = v; }
 
-unsigned int Cell::getY() const {
-	return this->y;
-}
+/**
+ * Get X coordinate of cell
+ * @return X coordinate
+ */
+unsigned int Cell::getX() const { return this->x; }
 
+/**
+ * Get Y coordinate of cell
+ * @return Y coordinate
+ */
+unsigned int Cell::getY() const { return this->y; }
+
+/**
+ * Maze constructor
+ * @param width Width of maze
+ * @param height Height of maze
+ * @param character Pointer to character
+ */
 Maze::Maze(const unsigned int width, const unsigned int height, Character* character) {
 	this->width = width;
 	this->height = height;
@@ -258,43 +304,51 @@ Maze::Maze(const unsigned int width, const unsigned int height, Character* chara
 	}
 }
 
+/**
+ * Maze destructor
+ */
 Maze::~Maze() {
-	for (const auto cell : this->maze) {
-		delete cell;
-	}
-	for (const auto peppermint : this->peppermints) {
-		delete peppermint;
-	}
-	for (const auto enemy : this->enemies) {
-		delete enemy;
-	}
-	for (const auto lock : this->locks) {
-		delete lock;
-	}
+	for (const auto cell : this->maze) { delete cell; }
+	for (const auto peppermint : this->peppermints) { delete peppermint; }
+	for (const auto enemy : this->enemies) { delete enemy; }
+	for (const auto lock : this->locks) { delete lock; }
 }
 
-bool Cell::getEdge(unsigned int edge) const
-{
-	return this->walls[edge];
-}
+/**
+ * Get edge of cell
+ * @param edge Edge to get
+ * @return Is wall present
+ */
+bool Cell::getEdge(unsigned int edge) const { return this->walls[edge]; }
 
-unsigned int Maze::getWidth() const {
-	return this->width;
-}
+/**
+ * Get width of maze
+ * @return Width of maze
+ */
+unsigned int Maze::getWidth() const { return this->width; }
 
-unsigned int Maze::getHeight() const {
-	return this->height;
-}
+/**
+ * Get height of maze
+ * @return Height of maze
+ */
+unsigned int Maze::getHeight() const { return this->height; }
 
-unsigned int Cell::setX(unsigned int x) {
-	return this->x = x;
-}
+/**
+ * Set X coordinate of cell
+ * @param x X coordinate
+ * @return X coordinate
+ */
+unsigned int Cell::setX(unsigned int x) { return this->x = x; }
 
-unsigned int Cell::setY(unsigned int y) {
-	return this->y = y;
-}
+/**
+ * Set Y coordinate of cell
+ * @param y Y coordinate
+ * @return Y coordinate
+ */
+unsigned int Cell::setY(unsigned int y) { return this->y = y; }
 
-bool Maze::isDoneGenerating() const
-{
-	return this->doneGenerating;
-}
+/**
+ * Is maze done generating
+ * @return true if maze is done generating
+ */
+bool Maze::isDoneGenerating() const { return this->doneGenerating; }

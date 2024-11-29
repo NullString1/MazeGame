@@ -13,7 +13,7 @@ int setupGraphics();
 void render();
 void setupVAOVBO();
 float* hexColour2Float(int hexColour);
-void drawLines(const std::vector<float>& lv, unsigned int colour, bool doBuffer);
+void drawLines(const std::vector<float>& lv, bool doBuffer);
 void error_callback(int error, const char* description);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);

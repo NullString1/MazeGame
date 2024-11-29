@@ -1,16 +1,20 @@
 #define NOMINMAX
 #include <typeinfo>
 #include <format>
-#include "graphics.h"
-
 #include <filesystem>
-
+#include "graphics.h"
 #include "font.h"
 #include "goal.h"
 #include "enemy.h"
 #include "item.h"
 
-int createWindow() { // https://learnopengl.com/Getting-started/Hello-Window
+
+/**
+ * Create window with GLFW and initialise OpenGL
+ * @return 0 on success. -1 on error
+ */
+int createWindow() {
+	// https://learnopengl.com/Getting-started/Hello-Window
 	if (!glfwInit()) {
 		fprintf_s(stderr, "Failed to initialize GLFW\n");
 		return -1;
@@ -21,8 +25,7 @@ int createWindow() { // https://learnopengl.com/Getting-started/Hello-Window
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	Game::window = glfwCreateWindow(1000, 1000, "MazeGame", nullptr, nullptr); // 1000x1000 window
-	if (!Game::window)
-	{
+	if (!Game::window) {
 		fprintf_s(stderr, "Failed to create window with GLFW\n");
 		glfwTerminate();
 		return -1;
@@ -50,6 +53,10 @@ int createWindow() { // https://learnopengl.com/Getting-started/Hello-Window
 	return 0;
 }
 
+/**
+ * Setup graphics for game. Load textures, fonts, shaders and set up VAOs and VBOs
+ * @return 0 on success, -1 on error
+ */
 int setupGraphics() {
 	if (createWindow() == -1)
 		return -1;
@@ -62,26 +69,43 @@ int setupGraphics() {
 	return 0;
 }
 
-void error_callback(int error, const char* description)
-{
-	fprintf(stderr, "Error: %s\n", description);
-}
+/**
+ * Error callback for GLFW
+ * @param error error code
+ * @param description error description
+ */
+void error_callback(int error, const char* description) { fprintf(stderr, "Error: %s\n", description); }
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
+/**
+ * Callback for window resizing. Changes viewport size
+ * @param window window
+ * @param width new width
+ * @param height new height
+ */
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
 	glViewport(0, 0, width, height);
 }
 
-void processInput(GLFWwindow* window)
-{
+/**
+ * Process input from window. Used to detect ESC key press
+ * @param window window
+ */
+void processInput(GLFWwindow* window) {
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 }
 
+/**
+ * Callback for key presses. Used to move player, and accept text input for questions
+ * @param window window (unused)
+ * @param key key pressed
+ * @param scancode scancode (unused)
+ * @param action action
+ * @param mods mods (unused)
+ */
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-	if (Game::questionState==HIDDEN  && (action == GLFW_REPEAT || action == GLFW_PRESS)) {
-		switch (key)
-		{
+	if (Game::questionState == HIDDEN && (action == GLFW_REPEAT || action == GLFW_PRESS)) {
+		switch (key) {
 		case GLFW_KEY_W:
 			Game::maze->player->move(Character::UP);
 			break;
@@ -113,10 +137,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 			break;
 		}
 	}
-	else if (Game::questionState!=HIDDEN && (action == GLFW_REPEAT || action == GLFW_PRESS)) {
-		if (key == GLFW_KEY_ENTER) {
-			Game::questionState = ANSWERED;
-		}
+	else if (Game::questionState != HIDDEN && (action == GLFW_REPEAT || action == GLFW_PRESS)) {
+		if (key == GLFW_KEY_ENTER) { Game::questionState = ANSWERED; }
 		else if (key == GLFW_KEY_BACKSPACE) {
 			if (!Game::textInput.empty())
 				Game::textInput.pop_back();
@@ -127,15 +149,26 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 	}
 }
 
+/**
+ * Convert hex colour to normalised float array (rgba) (-1.0f to 1.0f)
+ */
 float* hexColour2Float(const int hexColour) {
 	float r = ((hexColour >> 24) & 0xFF) / 255.0f;
 	float g = ((hexColour >> 16) & 0xFF) / 255.0f;
 	float b = ((hexColour >> 8) & 0xFF) / 255.0f;
 	float a = (hexColour & 0xFF) / 255.0f;
-	static float out[4] = { r, g, b, a };
+	static float out[4] = {r, g, b, a};
 	return out;
 }
 
+
+/**
+ * Normalise maze coordinates to OpenGL coordinates
+ * @param x Input x
+ * @param y Input y
+ * @param _x Output x 
+ * @param _y Output y
+ */
 static void normaliseGraphCoords(const unsigned int x, const unsigned int y, float& _x, float& _y) {
 	_x = -0.9f + x * 0.1f + 0.2f;
 	_y = 0.9f - y * 0.1f;
@@ -148,8 +181,11 @@ static void normaliseGraphCoords(const unsigned int x, const unsigned int y, flo
 	return out;
 }
 
-void loadShaders()
-{
+
+/**
+ * Load shaders 
+ */
+void loadShaders() {
 	Game::lineShader = new Shader("lineVertex.glsl", "lineFrag.glsl");
 	Game::characterShader = new Shader("characterVertex.glsl", "characterFrag.glsl");
 	Game::goalShader = new Shader("goalVertex.glsl", "goalFrag.glsl");
@@ -157,6 +193,9 @@ void loadShaders()
 	Game::itemShader = new Shader("itemVertex.glsl", "itemFrag.glsl");
 }
 
+/**
+ * Load textures and generate line texture
+ */
 void loadTextures() {
 	Game::characterTexture = loadDDSTexture(R"(character1.DDS)");
 	Game::characterTexture2 = loadDDSTexture(R"(character2.DDS)");
@@ -166,6 +205,9 @@ void loadTextures() {
 	generateLineTexture();
 }
 
+/**
+ * Setup Vertex Array Objects and Vertex Buffer Objects
+ */
 void setupVAOVBO() {
 	glGenVertexArrays(1, &Game::mazeVAO);
 	glGenVertexArrays(1, &Game::charVAO);
@@ -180,49 +222,59 @@ void setupVAOVBO() {
 
 	glBindVertexArray(Game::mazeVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, Game::mazeVBO);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), nullptr);   // Position attribute = 0, 2 floats, no normalisation
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), nullptr);
+	// Position attribute = 0, 2 floats, no normalisation
 
 	glEnableVertexAttribArray(0); // Enable vertex attribute
 
 	glBindVertexArray(Game::charVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, Game::charVBO);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), nullptr);   // Position attribute = 0, 2 floats, no normalisation, 
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));     // Texture coords attribute = 0, 2 floats, no normalisation, 
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), nullptr);
+	// Position attribute = 0, 2 floats, no normalisation, 
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));
+	// Texture coords attribute = 0, 2 floats, no normalisation, 
 	//no stride (space between values), offset of previous 3 floats
 	glEnableVertexAttribArray(0); // Enable vertex attribute
 	glEnableVertexAttribArray(1); // Enable texture attribute
 
 	glBindVertexArray(Game::goalVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, Game::goalVBO);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), nullptr);   // Position attribute = 0, 2 floats, no normalisation, 
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));     // Texture coords attribute = 0, 2 floats, no normalisation, 
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), nullptr);
+	// Position attribute = 0, 2 floats, no normalisation, 
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));
+	// Texture coords attribute = 0, 2 floats, no normalisation, 
 
 	glEnableVertexAttribArray(0); // Enable vertex attribute
 	glEnableVertexAttribArray(1); // Enable texture attribute
 
 	glBindVertexArray(Game::itemVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, Game::itemVBO);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), nullptr);   // Position attribute = 0, 2 floats, no normalisation, 
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));     // Texture coords attribute = 0, 2 floats, no normalisation,
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), nullptr);
+	// Position attribute = 0, 2 floats, no normalisation, 
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));
+	// Texture coords attribute = 0, 2 floats, no normalisation,
 
 	glEnableVertexAttribArray(0); // Enable vertex attribute
 	glEnableVertexAttribArray(1); // Enable texture attribute
 }
 
+/**
+ * Generate line texture for maze. Creates a 1D texture with alternating red and white lines
+ */
 void generateLineTexture() {
 	unsigned char* data = new unsigned char[Game::lineWidth * Game::lineWidth * 4];
 	for (unsigned int i = 0; i < Game::lineWidth * Game::lineWidth * 4; i += 4) {
 		if ((i / 4) % 2 == 0) {
-			data[i] = 255;     // Red
-			data[i + 1] = 0;   // Green
-			data[i + 2] = 0;   // Blue
+			data[i] = 255; // Red
+			data[i + 1] = 0; // Green
+			data[i + 2] = 0; // Blue
 		}
 		else {
-			data[i] = 255;     // Red
+			data[i] = 255; // Red
 			data[i + 1] = 255; // Green
 			data[i + 2] = 255; // Blue
 		}
-		data[i + 3] = 255;     // Alpha
+		data[i + 3] = 255; // Alpha
 	}
 
 	glGenTextures(1, &Game::lineTexture);
@@ -232,6 +284,11 @@ void generateLineTexture() {
 	delete[] data;
 }
 
+/**
+ * Load DDS texture from file
+ * @param path path to DDS file
+ * @return texture ID
+ */
 GLuint loadDDSTexture(const char* path) {
 	DDS_HEADER fileHeader;
 	FILE* fp;
@@ -243,7 +300,7 @@ GLuint loadDDSTexture(const char* path) {
 
 	char fileCode[4];
 	fread_s(fileCode, 4, 4, 1, fp);
-    if (memcmp(fileCode, "DDS ", 4) != 0) {
+	if (memcmp(fileCode, "DDS ", 4) != 0) {
 		fprintf_s(stderr, "Not a DDS file\n");
 		fclose(fp);
 		return -1;
@@ -251,7 +308,9 @@ GLuint loadDDSTexture(const char* path) {
 
 	fread_s(&fileHeader, sizeof(fileHeader), 124, 1, fp);
 
-	unsigned int bufferSize = fileHeader.dwMipMapCount > 1 ? fileHeader.dwPitchOrLinearSize * 2 : fileHeader.dwPitchOrLinearSize;
+	unsigned int bufferSize = fileHeader.dwMipMapCount > 1
+		                          ? fileHeader.dwPitchOrLinearSize * 2
+		                          : fileHeader.dwPitchOrLinearSize;
 	unsigned char* mipMapBuffer = new unsigned char[bufferSize];
 	fread_s(mipMapBuffer, bufferSize, 1, bufferSize, fp);
 	fclose(fp);
@@ -277,7 +336,8 @@ GLuint loadDDSTexture(const char* path) {
 	glGenTextures(1, &textureID);
 	glBindTexture(GL_TEXTURE_2D, textureID);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	// set texture wrapping to GL_REPEAT (default wrapping method)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	// set texture filtering parameters
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -286,9 +346,11 @@ GLuint loadDDSTexture(const char* path) {
 	unsigned int blockSize = (format == 0x83F1) ? 8 : 16;
 	unsigned int offset = 0;
 
-	for (unsigned int level = 0; level < fileHeader.dwMipMapCount && (fileHeader.dwWidth || fileHeader.dwHeight); ++level) {
+	for (unsigned int level = 0; level < fileHeader.dwMipMapCount && (fileHeader.dwWidth || fileHeader.dwHeight); ++
+	     level) {
 		unsigned int size = ((fileHeader.dwWidth + 3) / 4) * ((fileHeader.dwHeight + 3) / 4) * blockSize;
-		glCompressedTexImage2D(GL_TEXTURE_2D, level, format, fileHeader.dwWidth, fileHeader.dwHeight, 0, size, mipMapBuffer + offset);
+		glCompressedTexImage2D(GL_TEXTURE_2D, level, format, fileHeader.dwWidth, fileHeader.dwHeight, 0, size,
+		                       mipMapBuffer + offset);
 		offset += size;
 		fileHeader.dwWidth /= 2;
 		fileHeader.dwHeight /= 2;
@@ -297,17 +359,25 @@ GLuint loadDDSTexture(const char* path) {
 	return textureID;
 }
 
-void drawLines(const std::vector<float>& lv, const unsigned int colour, const bool doBuffer) {
+
+/**
+ * Draw maze lines on screen
+ * @param lv vector of line vertices 
+ * @param doBuffer whether to buffer data to gpu. Not needed if maze is not changing
+ */
+void drawLines(const std::vector<float>& lv, const bool doBuffer) {
 	Game::lineShader->use();
 	glBindVertexArray(Game::mazeVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, Game::mazeVBO);
 	glBindTexture(GL_TEXTURE_1D, Game::lineTexture);
-	if (doBuffer) {
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * lv.size(), lv.data(), GL_STATIC_DRAW);
-	}
+	if (doBuffer) { glBufferData(GL_ARRAY_BUFFER, sizeof(float) * lv.size(), lv.data(), GL_STATIC_DRAW); }
 	glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(lv.size()) / 2);
 }
 
+
+/**
+ * Draw GameObject on screen at x, y. Uses goalShader
+ */
 void GameObject::draw() {
 	float x, y;
 	normaliseGraphCoords(this->x, this->y, x, y);
@@ -323,16 +393,16 @@ void GameObject::draw() {
 	Game::goalShader->use();
 	Game::goalShader->setInt("texture1", 0);
 	vertices = {
-	x - 0.025f,               y - 0.025f,           0.0f,       1.0f, 1.0f, // top right
-	x - 0.025f,               y - size - 0.025f,    0.0f,       1.0f, 0.0f, // bottom right
-	x - size - 0.025f,        y - size - 0.025f,    0.0f,       0.0f, 0.0f, // bottom left
-	x - size - 0.025f,        y - 0.025f,           0.0f,       0.0f, 1.0f, // top left
+		x - 0.025f, y - 0.025f, 0.0f, 1.0f, 1.0f, // top right
+		x - 0.025f, y - size - 0.025f, 0.0f, 1.0f, 0.0f, // bottom right
+		x - size - 0.025f, y - size - 0.025f, 0.0f, 0.0f, 0.0f, // bottom left
+		x - size - 0.025f, y - 0.025f, 0.0f, 0.0f, 1.0f, // top left
 
 	};
 
 	const std::vector<unsigned int> indices = {
 		0, 1, 3, // first triangle
-		1, 2, 3  // second triangle
+		1, 2, 3 // second triangle
 	};
 
 	glBindBuffer(GL_ARRAY_BUFFER, Game::goalVBO);
@@ -343,6 +413,9 @@ void GameObject::draw() {
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 }
 
+/**
+ * Draw Entity on screen
+ */
 void Entity::draw() {
 	float x, y;
 	normaliseGraphCoords(this->getX(), this->getY(), x, y);
@@ -363,16 +436,16 @@ void Entity::draw() {
 	Game::characterShader->setInt("texture1", 0);
 
 	vertices = {
-		x,          y,            0.0f,       1.0f,   1.0f, // top right
-		x,          y - size,     0.0f,       1.0f,   0.0f, // bottom right
-		x - size,   y - size,     0.0f,       0.0f,   0.0f, // bottom left
-		x - size,   y,            0.0f,       0.0f,   1.0f, // top left
+		x, y, 0.0f, 1.0f, 1.0f, // top right
+		x, y - size, 0.0f, 1.0f, 0.0f, // bottom right
+		x - size, y - size, 0.0f, 0.0f, 0.0f, // bottom left
+		x - size, y, 0.0f, 0.0f, 1.0f, // top left
 
 	};
 
 	const std::vector<unsigned int> indices = {
 		0, 1, 3, // first triangle
-		1, 2, 3  // second triangle
+		1, 2, 3 // second triangle
 	};
 
 	glBindVertexArray(Game::charVAO);
@@ -384,6 +457,9 @@ void Entity::draw() {
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 }
 
+/**
+ * Draw Item on screen. Used to draw collected peppermints 
+ */
 void Item::draw() {
 	Game::itemShader->use();
 	Game::itemShader->setInt("texture1", 1);
@@ -399,16 +475,16 @@ void Item::draw() {
 	constexpr float size = 25.0f;
 
 	std::vector<float> vertices = {
-		x,          y,            0.0f,       1.0f,   1.0f, // top right
-		x,          y - size,     0.0f,       1.0f,   0.0f, // bottom right
-		x - size,   y - size,     0.0f,       0.0f,   0.0f, // bottom left
-		x - size,   y,            0.0f,       0.0f,   1.0f, // top left
+		x, y, 0.0f, 1.0f, 1.0f, // top right
+		x, y - size, 0.0f, 1.0f, 0.0f, // bottom right
+		x - size, y - size, 0.0f, 0.0f, 0.0f, // bottom left
+		x - size, y, 0.0f, 0.0f, 1.0f, // top left
 
 	};
 
 	const std::vector<unsigned int> indices = {
 		0, 1, 3, // first triangle
-		1, 2, 3  // second triangle
+		1, 2, 3 // second triangle
 	};
 
 	glBindVertexArray(Game::itemVAO);
@@ -420,11 +496,17 @@ void Item::draw() {
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 }
 
-void Maze::toVertices(std::vector<float>& vertices) const
-{
+
+/**
+ * Generate vector of line vertices from maze
+ * @param vertices reference to output vector
+ */
+void Maze::toVertices(std::vector<float>& vertices) const {
 	vertices.clear();
-	for (unsigned int i = 0; i < this->height; i++) { // maze->height
-		for (unsigned int j = 0; j < this->width; j++) { // maze->width
+	for (unsigned int i = 0; i < this->height; i++) {
+		// maze->height
+		for (unsigned int j = 0; j < this->width; j++) {
+			// maze->width
 			const Cell* cell = this->getCell(j, i);
 			const float x = -0.9f + j * 0.1f + 0.1f;
 			const float y = 0.9f - i * 0.1f;
@@ -433,33 +515,41 @@ void Maze::toVertices(std::vector<float>& vertices) const
 			std::vector<float> v;
 			// draw top edge
 			if (cell->getEdge(0)) {
-				v = { x, y, x + length, y };
+				v = {x, y, x + length, y};
 				vertices.insert(vertices.end(), v.begin(), v.end());
 			}
 			// draw left edge
 			if (cell->getEdge(3)) {
-				v = { x, y, x, y - length };
+				v = {x, y, x, y - length};
 				vertices.insert(vertices.end(), v.begin(), v.end());
 			}
 			// draw bottom edge
 			if (cell->getEdge(2)) {
-				v = { x, y - space, x + length, y - space };
+				v = {x, y - space, x + length, y - space};
 				vertices.insert(vertices.end(), v.begin(), v.end());
 			}
 			// draw right edge
 			if (cell->getEdge(1)) {
-				v = { x + space, y, x + space, y - length };
+				v = {x + space, y, x + space, y - length};
 				vertices.insert(vertices.end(), v.begin(), v.end());
 			}
-
 		}
 	}
 }
 
+
+/**
+ * Draw player's score 
+ * @param chr pointer to character
+ */
 static void drawScore(const Character* chr) {
 	drawText(std::format("Score: {}", chr->getScore()).c_str(), 20.0f, 40.0f, 1.0f, Game::textShader);
 }
 
+/**
+ * Draw timer on screen
+ * @param t time point to calculate time since
+ */
 static void drawTimer(const std::chrono::steady_clock::time_point& t) {
 	auto time = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - t).count();
 	auto minutes = time / 60;
@@ -468,6 +558,10 @@ static void drawTimer(const std::chrono::steady_clock::time_point& t) {
 	drawText(std::format("Time: {}m {}s / 5m", minutes, seconds).c_str(), 140.0f, 40.0f, 1.0f, Game::textShader);
 }
 
+/**
+ * Draw collected items on screen
+ * @param chr pointer to character
+ */
 static void drawItems(const Character* chr) {
 	drawText("Items:", 385.0f, 40.0f, 1.0f, Game::textShader);
 	for (unsigned int i = 0; i < chr->getCollectedPeppermints(); i++) {
@@ -478,6 +572,10 @@ static void drawItems(const Character* chr) {
 	}
 }
 
+
+/**
+ * Render game. Draws maze, player, enemies, locks, peppermints, score, timer, items and text
+ */
 void render() {
 	static std::vector<float> v;
 
@@ -492,11 +590,12 @@ void render() {
 		std::ranges::for_each(Game::maze->peppermints, [&](Peppermint* peppermint) {
 			if (peppermint->isVisible())
 				peppermint->draw();
-			});
+		});
 		std::ranges::for_each(Game::maze->locks, [&](Lock* lock) {
 			lock->draw();
 			if (lock->showQuestion) {
-				drawText(std::format("{} {}", lock->question->first, Game::textInput).c_str(), 200.0f, 700.0f, 1.0f, Game::textShader);
+				drawText(std::format("{} {}", lock->question->first, Game::textInput).c_str(),
+				         200.0f, 700.0f, 1.0f, Game::textShader);
 				Game::questionState = SHOWN;
 			}
 			if (Game::questionState == CORRECT) {
@@ -508,12 +607,10 @@ void render() {
 				Game::questionState = HIDDEN;
 			}
 		});
-		std::ranges::for_each(Game::maze->enemies, [&](Enemy* enemy) {
-			enemy->draw();
-		});
+		std::ranges::for_each(Game::maze->enemies, [&](Enemy* enemy) { enemy->draw(); });
 	}
 
-	drawLines(v, 0xFF0A00FF, !Game::maze->isDoneGenerating());
+	drawLines(v, !Game::maze->isDoneGenerating());
 	Game::maze->player->draw();
 	drawScore(Game::maze->player);
 	drawTimer(Game::gameTimer);
@@ -529,12 +626,15 @@ void render() {
 	glfwPollEvents();
 }
 
-
+/**
+ * Render menu. Draws menu with options to play, load and exit
+ * @param size reference to maze size
+ */
 void renderMenu(unsigned int& size) {
 	glClearColor(0.2f, 0.2f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	drawText("MAZE GAME!", 300/2, 100, 2, Game::textShader);
+	drawText("MAZE GAME!", 300 / 2, 100, 2, Game::textShader);
 	drawText("PLAY (P)", 300, 300, 1, Game::textShader);
 	drawText("LOAD (L)", 450, 300, 1, Game::textShader);
 	drawText("EXIT (E)", 600, 300, 1, Game::textShader);
@@ -545,16 +645,24 @@ void renderMenu(unsigned int& size) {
 	glfwPollEvents();
 }
 
+
+/**
+ * Save the current game state to file
+ */
 static void saveGame() {
 	std::ofstream file(std::filesystem::current_path().append("save.conf"));
 	file << Game::level << '\n';
 	file << Game::maze->player->getScore() << '\n';
 	file << Game::maze->player->getCollectedPeppermints() << '\n';
-	file << std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - Game::gameTimer).count();
+	file << std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - Game::gameTimer).
+		count();
 	//file << Game::maze->getWidth();
 	file.close();
 }
 
+/**
+ * Close the game. Save game state and free resources
+ */
 void close() {
 	saveGame();
 	glDeleteVertexArrays(1, &Game::mazeVAO);

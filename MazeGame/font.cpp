@@ -13,6 +13,10 @@ stbtt_pack_context pc;
 static stbtt_packedchar cdata[128];
 static GLuint fontTexture, fontVAO, fontVBO, fontEBO;
 
+
+/**
+ * Load Arial, create bitmap with font size 32 and store it in fontTexture.
+ */
 void loadFont() {
 	FILE* fontFile;
 	fopen_s(&fontFile, R"(C:\Windows\Fonts\Arial.ttf)", "rb");
@@ -32,7 +36,7 @@ void loadFont() {
 	fclose(fontFile);
 
 	stbtt_PackBegin(&pc, fontBitmap, 512, 512, 0, 1, nullptr);
-	//stbtt_PackSetOversampling(&pc, 1, 1);
+	stbtt_PackSetOversampling(&pc, 1, 1);
 	stbtt_PackFontRange(&pc, fontBuffer, 0, 32.0, 32, 128, cdata);
 	stbtt_PackEnd(&pc);
 
@@ -63,6 +67,15 @@ void loadFont() {
 	glEnableVertexAttribArray(2);
 }
 
+/**
+ * Draw text on screen.
+ *
+ * @param text text to draw
+ * @param x x coordinate
+ * @param y y coordinate
+ * @param scale text scale
+ * @param shader shader to render text
+ */
 void drawText(const char* text, float x, float y, const float scale, const Shader* shader) {
 	shader->use();
 	shader->setInt("fontTexture", 1);
@@ -90,15 +103,15 @@ void drawText(const char* text, float x, float y, const float scale, const Shade
 		y1 = 1000.0f - y1;
 
 		vertices.insert(vertices.end(), {
-			x0, y0, 0.0f, 1.0f, 1.0f, 1.0f, q.s0, q.t0,
-			x0, y1, 0.0f, 1.0f, 1.0f, 1.0f, q.s0, q.t1,
-			x1, y1, 0.0f, 1.0f, 1.0f, 1.0f, q.s1, q.t1,
-			x1, y0, 0.0f, 1.0f, 1.0f, 1.0f, q.s1, q.t0
-			});
+			                x0, y0, 0.0f, 1.0f, 1.0f, 1.0f, q.s0, q.t0,
+			                x0, y1, 0.0f, 1.0f, 1.0f, 1.0f, q.s0, q.t1,
+			                x1, y1, 0.0f, 1.0f, 1.0f, 1.0f, q.s1, q.t1,
+			                x1, y0, 0.0f, 1.0f, 1.0f, 1.0f, q.s1, q.t0
+		                });
 		indices.insert(indices.end(), {
-			indexOffset, indexOffset + 1, indexOffset + 2,
-			indexOffset, indexOffset + 2, indexOffset + 3
-			});
+			               indexOffset, indexOffset + 1, indexOffset + 2,
+			               indexOffset, indexOffset + 2, indexOffset + 3
+		               });
 
 		indexOffset += 4;
 	}

@@ -3,26 +3,25 @@
 #include "enemy.h"
 #include "graphics.h"
 
+
+/**
+ * Enemy's logic.
+ * Should be called every frame.
+ * Calculates path finding and moves enemy.
+ */
 void Enemy::tick() {
-	if (this->ticksSinceLastPF > (5 * minTicksSinceLastMove) || this->moves.empty()) {
-		const unsigned int target[2] = { Game::maze->player->getX(), Game::maze->player->getY() };
-		std::stack<CoordPair> path = findPathBFS(Game::maze->getCell(this->getX(), this->getY()), Game::maze->getCell(target[0], target[1]));
+	if (this->ticksSinceLastPF > (15 * minTicksSinceLastMove) || this->moves.empty()) {
+		const unsigned int target[2] = {Game::maze->player->getX(), Game::maze->player->getY()};
+		std::stack<CoordPair> path = findPathBFS(Game::maze->getCell(this->getX(), this->getY()),
+		                                         Game::maze->getCell(target[0], target[1]));
 		CoordPair previous = CoordPair(this->getX(), this->getY());
 		for (unsigned int i = 0; i < path.size(); i++) {
 			const CoordPair cell = path.top();
 			path.pop();
-			if (cell.first > previous.first) {
-				this->moves.emplace(GameObject::Direction::RIGHT);
-			}
-			else if (cell.first < previous.first) {
-				this->moves.emplace(GameObject::Direction::LEFT);
-			}
-			else if (cell.second > previous.second) {
-				this->moves.emplace(GameObject::Direction::DOWN);
-			}
-			else if (cell.second < previous.second) {
-				this->moves.emplace(GameObject::Direction::UP);
-			}
+			if (cell.first > previous.first) { this->moves.emplace(GameObject::Direction::RIGHT); }
+			else if (cell.first < previous.first) { this->moves.emplace(GameObject::Direction::LEFT); }
+			else if (cell.second > previous.second) { this->moves.emplace(GameObject::Direction::DOWN); }
+			else if (cell.second < previous.second) { this->moves.emplace(GameObject::Direction::UP); }
 			previous = cell;
 		}
 		this->ticksSinceLastPF = 0;
@@ -33,9 +32,15 @@ void Enemy::tick() {
 		this->ticksSinceLastMove = 0;
 	}
 	this->ticksSinceLastMove++;
-
 };
 
+/**
+ * Finds path from startCell to goalCell using Breadth First Search algorithm.
+ *
+ * @param startCell starting cell
+ * @param goalCell goal cell
+ * @return stack of coordinates representing path
+ */
 std::stack<CoordPair> findPathBFS(Cell* startCell, Cell* goalCell) {
 	std::queue<CoordPair> queue;
 	std::map<CoordPair, CoordPair> cameFrom;
@@ -49,9 +54,7 @@ std::stack<CoordPair> findPathBFS(Cell* startCell, Cell* goalCell) {
 	while (!queue.empty()) {
 		CoordPair current = queue.front();
 		queue.pop();
-		if (current == goal) {
-			break;
-		}
+		if (current == goal) { break; }
 		for (Cell* neighbour : Game::maze->getCell(current.first, current.second)->neighbours) {
 			CoordPair n = CoordPair(neighbour->getX(), neighbour->getY());
 			if (!cameFrom.contains(n)) {
@@ -62,9 +65,7 @@ std::stack<CoordPair> findPathBFS(Cell* startCell, Cell* goalCell) {
 	}
 	std::stack<CoordPair> path;
 	CoordPair end = goal;
-	if (!cameFrom.contains(end)) {
-		return path;
-	}
+	if (!cameFrom.contains(end)) { return path; }
 	while (end != CoordPair(MAXDWORD, MAXDWORD)) {
 		path.emplace(end);
 		end = cameFrom.at(end);
@@ -72,6 +73,9 @@ std::stack<CoordPair> findPathBFS(Cell* startCell, Cell* goalCell) {
 	return path;
 }
 
-GLuint Enemy::getTexture() {
-	return Enemy::texture;
-}
+
+/**
+ * 
+ * @return Enemy's texture
+ */
+GLuint Enemy::getTexture() { return Enemy::texture; }
