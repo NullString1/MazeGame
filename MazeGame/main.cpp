@@ -137,10 +137,10 @@ void loadSave(unsigned int& score, unsigned int& collectedPeppermints, CoordPair
 /**
  * Game menu loop
  */
-unsigned int gameMenu(unsigned int &score, unsigned int &collectedPeppermints, CoordPair& playerPos, unsigned int& mazeSize) {
+void gameMenu(unsigned int &score, unsigned int &collectedPeppermints, CoordPair& playerPos, unsigned int& mazeSize) {
 	unsigned int size = 10;
 	if (setupGraphics() != 0)
-		return 0;
+		exit(-1);
 	while (!shouldClose() && Game::textInput!="P" && Game::textInput!="E" && Game::textInput!="L") {
 		Game::fps_start_t = std::chrono::high_resolution_clock::now();
 		renderMenu(size);
