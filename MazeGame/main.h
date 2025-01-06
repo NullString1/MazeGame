@@ -5,5 +5,5 @@
 void newLevel(unsigned int w, unsigned int h);
 void loadSave();
 int main();
-int gameMenu();
+unsigned int gameMenu();
 void gameLoop(Maze& maze, Character& character);

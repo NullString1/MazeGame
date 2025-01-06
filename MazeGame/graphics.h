@@ -26,6 +26,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 void drawItems(const Character* chr);
 void generateLineTexture();
 void renderMenu(unsigned int& size);
+int maze_rnd();
+int maze_rnd(int min, int max);
 int rnd();
 int rnd(int min, int max);
 
@@ -48,8 +50,8 @@ public:
 	inline static questionState questionState = HIDDEN;
 	inline static std::string textInput;
 	inline static unsigned int level = 1;
-	inline static std::mt19937 rng_mt19937;
-	inline static std::uniform_int_distribution<> rng;
+	inline static std::mt19937 maze_rng_mt19937, maze_rng_mt_saved, rng_mt19937, rng_mt_saved;
+	inline static std::uniform_int_distribution<> maze_rng, maze_rng_saved, rng, rng_saved;
 	inline static unsigned int rngSeed;
 };
 

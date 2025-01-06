@@ -44,7 +44,7 @@ public:
 	Cell* randCell(unsigned int lowLimitX, unsigned int highLimitX, unsigned int lowLimitY, unsigned int highLimitY) const;
 	void generateMaze();
 	void toVertices(std::vector<float>& vertices) const;
-	unsigned int getWidth() const, getHeight() const;
+	unsigned int getWidth(), getHeight();
 	bool isDoneGenerating() const;
 	void resetMaze();
 	void resetMaze(bool resetWalls);

@@ -91,33 +91,29 @@ void gameLoop(Maze& maze, Character& character) {
 /**
  * Load save file
  */
-void loadSave() {
+void loadSave(unsigned int& score, unsigned int& collectedPeppermints, CoordPair& playerPos, unsigned int& mazeSize) {
 	std::ifstream file(std::filesystem::current_path().append("save.conf"));
 	if (file.is_open()) {
 		file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 		try {
 			file >> Game::level;
-			int score;
 			file >> score;
-			Game::maze->player->setScore(score);
-			int collectedPeppermints;
 			file >> collectedPeppermints;
-			Game::maze->player->setCollectedPeppermints(collectedPeppermints);
 			int time;
 			file >> time;
 			auto now = std::chrono::steady_clock::now();
 			auto oldTime = std::chrono::seconds(time);
 			auto t = now - oldTime;
 			Game::gameTimer = t;
-			file >> Game::rngSeed;
-			Game::rng_mt19937 = std::mt19937(Game::rngSeed);
-			unsigned int w;
-			file >> w;
+			file >> Game::maze_rng_mt19937;
+			file >> Game::maze_rng;
+			file >> Game::rng_mt19937;
+			file >> Game::rng;
+			file >> mazeSize;
 			unsigned int x,y;
 			file >> x;
 			file >> y;
-			Game::maze->player->setX(x);
-			Game::maze->player->setY(y);
+			playerPos = CoordPair(x, y);
 			file.close();
 		}
 		catch (std::ifstream::failure& e) {
@@ -129,10 +125,10 @@ void loadSave() {
 /**
  * Game menu loop
  */
-int gameMenu() {
+unsigned int gameMenu(unsigned int &score, unsigned int &collectedPeppermints, CoordPair& playerPos, unsigned int& mazeSize) {
 	unsigned int size = 10;
 	if (setupGraphics() != 0)
-		return -1;
+		return 0;
 	while (!shouldClose() && Game::textInput!="P" && Game::textInput!="E" && Game::textInput!="L") {
 		Game::fps_start_t = std::chrono::high_resolution_clock::now();
 		renderMenu(size);
@@ -148,16 +144,20 @@ int gameMenu() {
 		Game::fps_end_t = std::chrono::high_resolution_clock::now();
 		Sleep(static_cast<DWORD>(std::max<long long>(0, 1000 / 60 - std::chrono::duration_cast<std::chrono::milliseconds>(Game::fps_end_t - Game::fps_start_t).count()))); // 60fps = 1000/60 = 16.666ms
 	}
-	if (size != 10) {
-		Game::maze->resizeMaze(size, size);
-	}
-	if (Game::textInput == "E")
+	if (Game::textInput == "E") {
 		close();
-	else if (Game::textInput == "L")
-		loadSave();
-	else if (Game::textInput == "P") 
-		return 0;
-	return 0;
+		Game::textInput.clear();
+	}
+	else if (Game::textInput == "L") {
+		loadSave(score, collectedPeppermints, playerPos, size);
+		Game::textInput.clear();
+	}
+	else if (Game::textInput == "P") {
+		Game::textInput.clear();
+		Game::maze_rng_mt19937 = std::mt19937(std::random_device{}());
+		Game::rng_mt19937 = std::mt19937(std::random_device{}());
+	}
+	mazeSize = size;
 }
 
 /**
@@ -179,16 +179,23 @@ static void newLevel(unsigned int w, unsigned int h) {
 }
 
 int main() {
-	Game::rngSeed = std::random_device{}();
-	Game::rng_mt19937 = std::mt19937(Game::rngSeed);
-	constexpr int mazeSize = 10;
+	unsigned int score = 0, collectedPeppermints=0, mazeSize;
+	CoordPair playerPos = CoordPair(0,0);
+	gameMenu(score, collectedPeppermints, playerPos, mazeSize);
+	Game::maze_rng_mt_saved = Game::maze_rng_mt19937;
+	Game::maze_rng_saved = Game::maze_rng;
+	Game::rng_mt_saved = Game::rng_mt19937;
+	Game::rng_saved = Game::rng;
 
 	Character character;
 	Maze maze = Maze(mazeSize, mazeSize, &character);
 	Game::maze = &maze;
+	character.setX(playerPos.first);
+	character.setY(playerPos.second);
+	character.setScore(score);
+	character.setCollectedPeppermints(collectedPeppermints);
 
 	Game::gameTimer = std::chrono::steady_clock::now();
-	gameMenu();
 	gameLoop(maze, character);
 
 	close();

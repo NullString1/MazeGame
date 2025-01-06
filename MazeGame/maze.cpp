@@ -12,7 +12,7 @@ static std::vector<Cell*> stack;
  * Get a random cell from maze
  * @return pointer to random cell
  */
-Cell* Maze::randCell() const { return this->getCell(rnd(0, this->width - 1), rnd(0, this->height - 1)); }
+Cell* Maze::randCell() const { return this->getCell(maze_rnd(0, this->width - 1), maze_rnd(0, this->height - 1)); }
 
 /**
  * Get a random cell from maze between limits
@@ -24,7 +24,7 @@ Cell* Maze::randCell() const { return this->getCell(rnd(0, this->width - 1), rnd
  */
 Cell* Maze::randCell(unsigned int lowLimitX, unsigned int highLimitX, unsigned int lowLimitY,
                      unsigned int highLimitY) const {
-	return this->getCell(rnd(lowLimitX, highLimitX), rnd(lowLimitY, highLimitY));
+	return this->getCell(maze_rnd(lowLimitX, highLimitX), maze_rnd(lowLimitY, highLimitY));
 }
 
 /**
@@ -32,6 +32,10 @@ Cell* Maze::randCell(unsigned int lowLimitX, unsigned int highLimitX, unsigned i
  * @param resetWalls Should walls be reset. Not needed when maze was just resized
  */
 void Maze::resetMaze(bool resetWalls) {
+	Game::maze_rng_mt_saved = Game::maze_rng_mt19937;
+	Game::maze_rng_saved = Game::maze_rng;
+	Game::rng_mt_saved = Game::rng_mt19937;
+	Game::rng_saved = Game::rng;
 	std::ranges::for_each(peppermints, [](const Peppermint* p) { delete p; });
 	std::ranges::for_each(locks, [](const Lock* l) { delete l; });
 	std::ranges::for_each(enemies, [](const Enemy* e) { delete e; });
@@ -118,7 +122,7 @@ void Maze::generateMaze() {
 	});
 
 	if (!unvisited.empty()) {
-		const unsigned int index = rnd(0, unvisited.size()-1);
+		const unsigned int index = maze_rnd(0, unvisited.size()-1);
 		Cell* next = unvisited[index];
 		const int x = static_cast<int>(this->current->getX()) - next->getX();
 		if (x == 1) {
@@ -307,13 +311,13 @@ bool Cell::getEdge(unsigned int edge) const { return this->walls[edge]; }
  * Get width of maze
  * @return Width of maze
  */
-unsigned int Maze::getWidth() const { return this->width; }
+unsigned int Maze::getWidth() { return this->width; }
 
 /**
  * Get height of maze
  * @return Height of maze
  */
-unsigned int Maze::getHeight() const { return this->height; }
+unsigned int Maze::getHeight() { return this->height; }
 
 /**
  * Set X coordinate of cell

@@ -374,13 +374,22 @@ void drawLines(const std::vector<float>& lv, const bool doBuffer) {
 	glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(lv.size()) / 2);
 }
 
+int maze_rnd(int min, int max) {
+	return maze_rnd() % (max - min + 1) + min;
+}
+
+int maze_rnd() {
+	return Game::maze_rng(Game::maze_rng_mt19937);
+}
+
 int rnd(int min, int max) {
-	return Game::rng(Game::rng_mt19937) % (max - min + 1) + min;
+	return rnd() % (max - min + 1) + min;
 }
 
 int rnd() {
 	return Game::rng(Game::rng_mt19937);
 }
+
 
 /**
  * Draw GameObject on screen at x, y. Uses goalShader
@@ -435,7 +444,7 @@ void Entity::draw() {
 
 	Character* chr = dynamic_cast<Character*>(this);
 	if (chr != nullptr)
-		glBindTexture(GL_TEXTURE_2D, chr->getTexture(rnd(0,2)));
+		glBindTexture(GL_TEXTURE_2D, chr->getTexture(rand() % 2));
 	else
 		glBindTexture(GL_TEXTURE_2D, this->getTexture());
 
@@ -663,7 +672,10 @@ static void saveGame() {
 	file << Game::maze->player->getCollectedPeppermints() << '\n';
 	file << std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - Game::gameTimer).
 		count() << '\n';
-	file << Game::rngSeed << '\n';
+	file << Game::maze_rng_mt_saved << '\n';
+	file << Game::maze_rng_saved << '\n';
+	file << Game::rng_mt_saved << '\n';
+	file << Game::rng_saved << '\n';
 	file << Game::maze->getWidth() << "\n";
 	file << Game::maze->player->getX() << "\n";
 	file << Game::maze->player->getY() << "\n";
