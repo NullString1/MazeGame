@@ -12,6 +12,7 @@ public:
 	unsigned int getScore() const;
 	void setScore(unsigned int score);
 	void incrementScore();
+	void incrementScore(int a);
 	void decrementScore();
 	unsigned int getCollectedPeppermints() const;
 	void setCollectedPeppermints(unsigned int collectedPeppermints);

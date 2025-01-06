@@ -56,10 +56,22 @@ void gameLoop(Maze& maze, Character& character) {
 					lock->setVisible(false);
 					lock->showQuestion = false;
 					std::ranges::transform(Game::textInput, Game::textInput.begin(),
-					                       [](unsigned char c) { return std::tolower(c); });
+						[](unsigned char c) { return std::tolower(c); });
 					if (Game::textInput == lock->question->second) {
 						Game::questionState = CORRECT;
-						character.incrementScore();
+						auto t = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - Game::gameTimer).count();
+						if (t <= 30) {
+							character.incrementScore(5);
+						}
+						else if (t <= 60) {
+							character.incrementScore(3);
+						}
+						else if (t <= 120) {
+							character.incrementScore(2);
+						}
+						else {
+							character.incrementScore();
+						}
 						w = Game::maze->getWidth() + 1;
 						h = Game::maze->getHeight() + 1;
 					} else {

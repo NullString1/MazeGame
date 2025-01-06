@@ -19,6 +19,12 @@ void Character::setScore(const unsigned int score_) { this->score = score_; }
 void Character::incrementScore() { this->score++; }
 
 /**
+ * Increment character's score by a
+ * @param a increment value (int)
+ */
+void Character::incrementScore(int a) { this->score += a; }
+
+/**
  * Decrement character's score by 1
  */
 void Character::decrementScore() {
