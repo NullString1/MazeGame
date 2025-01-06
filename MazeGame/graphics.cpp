@@ -374,18 +374,38 @@ void drawLines(const std::vector<float>& lv, const bool doBuffer) {
 	glDrawArrays(GL_LINES, 0, static_cast<GLsizei>(lv.size()) / 2);
 }
 
+/**
+ * Generate random number between min and max (inclusive). Use only for maze generation
+ * @param min 
+ * @param max 
+ * @return random number
+ */
 int maze_rnd(int min, int max) {
 	return maze_rnd() % (max - min + 1) + min;
 }
 
+/**
+ * Generate random number. Use for only maze generation
+ * @return random number
+ */
 int maze_rnd() {
 	return Game::maze_rng(Game::maze_rng_mt19937);
 }
 
+/**
+ * Generate random number between min and max (inclusive).
+ * @param min
+ * @param max
+ * @return random number
+ */
 int rnd(int min, int max) {
 	return rnd() % (max - min + 1) + min;
 }
 
+/**
+ * Generate random number
+ * @return random number
+ */
 int rnd() {
 	return Game::rng(Game::rng_mt19937);
 }
