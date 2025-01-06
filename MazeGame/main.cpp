@@ -96,18 +96,28 @@ void loadSave() {
 	if (file.is_open()) {
 		file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 		try {
-			std::string line;
-			std::getline(file, line);
-			Game::level = std::stoi(line);
-			std::getline(file, line);
-			Game::maze->player->setScore(std::stoi(line));
-			std::getline(file, line);
-			Game::maze->player->setCollectedPeppermints(std::stoi(line));
-			std::getline(file, line);
+			file >> Game::level;
+			int score;
+			file >> score;
+			Game::maze->player->setScore(score);
+			int collectedPeppermints;
+			file >> collectedPeppermints;
+			Game::maze->player->setCollectedPeppermints(collectedPeppermints);
+			int time;
+			file >> time;
 			auto now = std::chrono::steady_clock::now();
-			auto oldTime = std::chrono::seconds(std::stoi(line));
+			auto oldTime = std::chrono::seconds(time);
 			auto t = now - oldTime;
 			Game::gameTimer = t;
+			file >> Game::rngSeed;
+			Game::rng_mt19937 = std::mt19937(Game::rngSeed);
+			unsigned int w;
+			file >> w;
+			unsigned int x,y;
+			file >> x;
+			file >> y;
+			Game::maze->player->setX(x);
+			Game::maze->player->setY(y);
 			file.close();
 		}
 		catch (std::ifstream::failure& e) {
@@ -169,7 +179,8 @@ static void newLevel(unsigned int w, unsigned int h) {
 }
 
 int main() {
-	srand(static_cast<unsigned int>(time(nullptr)));
+	Game::rngSeed = std::random_device{}();
+	Game::rng_mt19937 = std::mt19937(Game::rngSeed);
 	constexpr int mazeSize = 10;
 
 	Character character;

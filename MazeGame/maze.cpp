@@ -9,28 +9,10 @@
 static std::vector<Cell*> stack;
 
 /**
- * Generate random number between min and max
- * @param min Minimum value
- * @param max Maximum value
- * @return Random value between min and max
- */
-static int random(const int min, const int max) { return rand() % (max - min + 1) + min; }
-
-/**
- * Generate random number between min and max
- * @param min Minimum value
- * @param max Maximum value
- * @return Random value between min and max
- */
-[[maybe_unused]] static float randomF(const float min, const float max) {
-	return static_cast<float>(rand()) / RAND_MAX * (max - min) + min;
-}
-
-/**
  * Get a random cell from maze
  * @return pointer to random cell
  */
-Cell* Maze::randCell() const { return this->getCell(random(0, this->width - 1), random(0, this->height - 1)); }
+Cell* Maze::randCell() const { return this->getCell(rnd(0, this->width - 1), rnd(0, this->height - 1)); }
 
 /**
  * Get a random cell from maze between limits
@@ -42,7 +24,7 @@ Cell* Maze::randCell() const { return this->getCell(random(0, this->width - 1), 
  */
 Cell* Maze::randCell(unsigned int lowLimitX, unsigned int highLimitX, unsigned int lowLimitY,
                      unsigned int highLimitY) const {
-	return this->getCell(random(lowLimitX, highLimitX), random(lowLimitY, highLimitY));
+	return this->getCell(rnd(lowLimitX, highLimitX), rnd(lowLimitY, highLimitY));
 }
 
 /**
@@ -72,11 +54,11 @@ void Maze::resetMaze(bool resetWalls) {
 		}
 	}
 	gens = this->getHeight() * this->getWidth();
-	endPointGC = static_cast<unsigned int>(gens * (random(9, 10) / 10.0f));
+	endPointGC = static_cast<unsigned int>(gens * (rnd(9, 10) / 10.0f));
 
 	for (unsigned int i = 0; i < Game::level; i++) {
-		peppermintsGC.emplace_back(static_cast<unsigned int>(gens * (random(2, 4) / 10.0f)));
-		enemiesGC.emplace_back(static_cast<unsigned int>(gens * (random(6, 9) / 10.0f)));
+		peppermintsGC.emplace_back(static_cast<unsigned int>(gens * (rnd(2, 4) / 10.0f)));
+		enemiesGC.emplace_back(static_cast<unsigned int>(gens * (rnd(6, 9) / 10.0f)));
 	}
 }
 
@@ -136,7 +118,7 @@ void Maze::generateMaze() {
 	});
 
 	if (!unvisited.empty()) {
-		const unsigned int index = rand() % unvisited.size();
+		const unsigned int index = rnd(0, unvisited.size()-1);
 		Cell* next = unvisited[index];
 		const int x = static_cast<int>(this->current->getX()) - next->getX();
 		if (x == 1) {
@@ -296,11 +278,11 @@ Maze::Maze(const unsigned int width, const unsigned int height, Character* chara
 	}
 	this->current = this->getCell(0, 0);
 	gens = this->getHeight() * this->getWidth();
-	endPointGC = static_cast<unsigned int>(gens * (random(9, 10) / 10.0f));
+	endPointGC = static_cast<unsigned int>(gens * (rnd(9, 10) / 10.0f));
 
 	for (unsigned int i = 0; i < Game::level; i++) {
-		peppermintsGC.emplace_back(static_cast<unsigned int>(gens * (random(2, 4) / 10.0f)));
-		enemiesGC.emplace_back(static_cast<unsigned int>(gens * (random(6, 9) / 10.0f)));
+		peppermintsGC.emplace_back(static_cast<unsigned int>(gens * (rnd(2, 4) / 10.0f)));
+		enemiesGC.emplace_back(static_cast<unsigned int>(gens * (rnd(6, 9) / 10.0f)));
 	}
 }
 

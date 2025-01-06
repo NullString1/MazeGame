@@ -1,6 +1,7 @@
 #pragma once
 #include <chrono>
 #include <vector>
+#include <random>
 #include <windows.h>
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
@@ -25,6 +26,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 void drawItems(const Character* chr);
 void generateLineTexture();
 void renderMenu(unsigned int& size);
+int rnd();
+int rnd(int min, int max);
 
 enum questionState: std::uint8_t {
 	SHOWN,
@@ -45,8 +48,10 @@ public:
 	inline static questionState questionState = HIDDEN;
 	inline static std::string textInput;
 	inline static unsigned int level = 1;
+	inline static std::mt19937 rng_mt19937;
+	inline static std::uniform_int_distribution<> rng;
+	inline static unsigned int rngSeed;
 };
-
 
 inline bool shouldClose() {
 	return glfwWindowShouldClose(Game::window);
